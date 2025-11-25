@@ -7,7 +7,8 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "prepare": "husky"
+    "prepare": "husky",
+    "lint": "expo lint"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -30,6 +31,8 @@
     "@commitlint/config-conventional": "^20.0.0",
     "@types/react": "~19.1.0",
     "drizzle-kit": "^0.31.7",
+    "eslint": "^9.0.0",
+    "eslint-config-expo": "~10.0.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "typescript": "~5.9.2"
