@@ -14,10 +14,13 @@
     "@react-navigation/native-stack": "^7.7.0",
     "babel-plugin-inline-import": "^3.0.0",
     "drizzle-orm": "^0.44.7",
+    "eslint-config-expo": "~10.0.0",
+    "eslint-plugin-prettier": "^5.5.4",
     "expo": "~54.0.25",
     "expo-drizzle-studio-plugin": "^0.2.1",
     "expo-sqlite": "~16.0.9",
     "expo-status-bar": "~3.0.8",
+    "prettier": "^3.6.2",
     "react": "19.1.0",
     "react-native": "0.81.5",
     "react-native-paper": "^5.14.5",
@@ -28,12 +31,16 @@
   "devDependencies": {
     "@commitlint/cli": "^20.1.0",
     "@commitlint/config-conventional": "^20.0.0",
+    "@eslint/js": "^9.39.1",
     "@types/react": "~19.1.0",
     "babel-preset-expo": "^54.0.7",
     "drizzle-kit": "^0.31.7",
+    "eslint": "^9.39.1",
+    "globals": "^16.5.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
-    "typescript": "~5.9.2"
+    "typescript": "~5.9.2",
+    "typescript-eslint": "^8.48.0"
   },
   "private": true,
   "lint-staged": {
