@@ -23,6 +23,9 @@ export function HomeScreen() {
   const [name, setName] = useState("");
   const [search, setSearch] = useState("");
   const [data, setData] = useState<Data[]>([]);
+  const [idUpdate, setIdUpdate] = useState("");
+  const [nameUpdade, setNameUpdate] = useState("");
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const database = useSQLiteContext();
   const db = drizzle(database, { schema: productSchema });
@@ -51,6 +54,17 @@ export function HomeScreen() {
     }
   }
 
+  async function update(id: string, name: string) {
+    parseInt(id);
+    await db
+      .update(productSchema.product)
+      .set({ name })
+      .where(eq(productSchema.product.id, parseInt(id)));
+    setIdUpdate('')
+    setNameUpdate('')
+    setRefreshKey((prev) => prev + 1);
+  }
+
   async function remove(id: number) {
     try {
       Alert.alert("Remover", "Deseja remover?", [
@@ -59,7 +73,7 @@ export function HomeScreen() {
           style: "cancel",
         },
         {
-          text: "Sim",
+          text: "Remover",
           onPress: async () => {
             await db
               .delete(productSchema.product)
@@ -92,12 +106,12 @@ export function HomeScreen() {
 
   useEffect(() => {
     fetchProducts();
-  }, [search]);
+  }, [search, refreshKey]);
 
   return (
     <View style={styles.container}>
       <TextInput
-        placeholder="teste"
+        placeholder="Nome..."
         style={{
           height: 54,
           borderWidth: 1,
@@ -124,6 +138,37 @@ export function HomeScreen() {
         value={search}
       />
 
+      <Text>Atualizar</Text>
+      <View style={styles.update}>
+        <TextInput
+          placeholder="ID"
+          style={{
+            height: 54,
+            width: 150,
+            borderWidth: 1,
+            borderRadius: 10,
+            borderColor: "#999",
+            paddingHorizontal: 16,
+          }}
+          onChangeText={setIdUpdate}
+          value={idUpdate}
+        />
+        <TextInput
+          placeholder="Nome"
+          style={{
+            height: 54,
+            width: 150,
+            borderWidth: 1,
+            borderRadius: 10,
+            borderColor: "#999",
+            paddingHorizontal: 16,
+          }}
+          onChangeText={setNameUpdate}
+          value={nameUpdade}
+        />
+      </View>
+      <Button title="Atualizar" onPress={() => update(idUpdate, nameUpdade)} />
+
       <FlatList
         data={data}
         keyExtractor={(item) => String(item.id)}
@@ -149,5 +194,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 32,
     gap: 16,
+  },
+  update: {
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
 });
