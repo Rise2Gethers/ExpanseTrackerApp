@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import CurrencyInput from 'react-native-currency-input';
-import { MaterialCommunityIcons } from '@expo/vector-icons'; // Ícone direto do Expo
+import React from "react";
+import { View, StyleSheet } from "react-native";
+import CurrencyInput from "react-native-currency-input";
+import { useTheme } from "react-native-paper";
 
 interface InputAmountProps {
   value: number | null;
@@ -9,19 +9,20 @@ interface InputAmountProps {
 }
 
 export const InputAmount = ({ value, onChangeValue }: InputAmountProps) => {
+  const theme = useTheme();
+
   return (
-    <View style={styles.container}>
-      <MaterialCommunityIcons name="currency-usd" size={30} color="#333" style={styles.icon} />
+    <View style={[styles.container, { backgroundColor: theme.colors.surface }]}>
       <CurrencyInput
         value={value}
         onChangeValue={onChangeValue}
-        prefix="" // Tirei o prefixo texto para usar o icone
-        delimiter=","
-        separator="."
+        prefix="R$ "
+        delimiter="."
+        separator=","
         precision={2}
-        placeholder="0.00"
-        placeholderTextColor="#ccc"
-        style={styles.amountText} 
+        placeholder="R$ 0,00"
+        placeholderTextColor={theme.colors.onSurfaceDisabled}
+        style={[styles.amountText, { color: theme.colors.primary }]}
       />
     </View>
   );
@@ -29,19 +30,21 @@ export const InputAmount = ({ value, onChangeValue }: InputAmountProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 35,
+    borderRadius: 24,
     marginVertical: 20,
-  },
-  icon: {
-    marginRight: 5,
-    marginTop: 5, // Pequeno ajuste para alinhar com o texto
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 4,
   },
   amountText: {
-    fontSize: 48, // BEM GRANDE
-    fontWeight: 'bold',
-    color: '#1a1a2e',
-    textAlign: 'center',
-  }
+    fontSize: 42,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
 });

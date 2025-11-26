@@ -1,6 +1,6 @@
 import React from "react";
-import { Appbar } from "react-native-paper";
-import { StyleSheet } from "react-native";
+import { Appbar, useTheme } from "react-native-paper";
+import { StyleSheet, View } from "react-native";
 
 interface HeaderProps {
   title: string;
@@ -13,27 +13,26 @@ export const Header = ({
   showBackButton = false,
   onBackPress,
 }: HeaderProps) => {
+  const theme = useTheme();
   return (
-    <Appbar.Header style={styles.header} elevated>
-      {/* Se showBackButton for true, mostra a setinha */}
-      {showBackButton && <Appbar.BackAction onPress={onBackPress} />}
+    <Appbar.Header style={{ backgroundColor: theme.colors.surface }} elevated>
+      {showBackButton ? (
+        <Appbar.BackAction onPress={onBackPress} />
+      ) : (
+        <View style={{ width: 48 }} />
+      )}
 
-      {/* O Título centralizado */}
       <Appbar.Content title={title} titleStyle={styles.title} />
 
-      {/* Truque: Um ícone invisível na direita para o título ficar perfeitamente centralizado se tiver botão de voltar na esquerda */}
-      {showBackButton && <Appbar.Action icon="circle" color="transparent" />}
+      <View style={{ width: 48 }} />
     </Appbar.Header>
   );
 };
 
 const styles = StyleSheet.create({
-  header: {
-    backgroundColor: "#fff", // Fundo branco igual ao design
-  },
   title: {
     fontWeight: "bold",
     fontSize: 18,
-    alignSelf: "center", // Garante que o texto fique no meio
+    alignSelf: "center",
   },
 });

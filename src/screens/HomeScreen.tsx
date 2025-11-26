@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import { View, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
-import { Text, Button, TextInput, Icon } from "react-native-paper";
-import { InputAmount } from "../components/InputAmount";
-import { TransactionItem } from "../components/TransactionItem";
-import { Header } from "../components/Header";
+import { Text, Button, TextInput, Icon, useTheme } from "react-native-paper";
+import { InputAmount, TransactionItem, Header } from "../components/index";
 
 const CATEGORIES = [
   { id: "1", name: "Alimentação", icon: "silverware-fork-knife" },
@@ -15,6 +13,7 @@ const CATEGORIES = [
 ];
 
 export function HomeScreen() {
+  const theme = useTheme();
   const [amount, setAmount] = useState<number | null>(0);
   const [selectedCategory, setSelectedCategory] = useState<string>("1"); // Começa com Food selecionado
   const [description, setDescription] = useState("");
@@ -53,7 +52,7 @@ export function HomeScreen() {
                 <Icon
                   source={cat.icon}
                   size={24}
-                  color={isSelected ? "#2D74FF" : "#333"}
+                  color={isSelected ? theme.colors.primary : "#333"}
                 />
                 <Text
                   style={[
@@ -93,13 +92,15 @@ export function HomeScreen() {
 
         <Button
           mode="contained"
+          onPress={() => alert("Gasto adicionado!")}
+          buttonColor={theme.colors.primary}
+          textColor="#FFF"
+          contentStyle={{ height: 56 }}
           style={styles.saveButton}
-          contentStyle={{ height: 50 }}
-          onPress={() => alert("Expense Saved!")}
         >
-          Salvar
+          Salvar Despesa
         </Button>
-        {/* ÁREA DE TESTE DO EXTRATO */}
+
         <View style={{ marginTop: 30, gap: 10 }}>
           <Text variant="titleLarge" style={{ fontWeight: "bold" }}>
             Últimos lançamentos
@@ -169,7 +170,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   cardSelected: {
-    borderColor: "#2D74FF",
+    borderColor:
+      "isSelected && { color: theme.colors.primary, fontWeight: 'bold' }",
     backgroundColor: "#EDF4FF",
   },
   cardText: {
@@ -197,7 +199,7 @@ const styles = StyleSheet.create({
   },
   saveButton: {
     marginTop: 30,
-    backgroundColor: "#2D74FF",
-    borderRadius: 30,
+    borderRadius: 12,
+    justifyContent: "center",
   },
 });
