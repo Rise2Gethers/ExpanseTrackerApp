@@ -11,7 +11,7 @@
 
 **Expanse Tracker** is a **Local-First** mobile application for personal financial management.
 
-More than just an app, this project serves as a **Software Engineering Lab**. Conceived by two developers under the **Rise2Gethers** organization, the goal is to simulate the real-life cycle of a software product within a major tech company. We focus not only on writing code but on fostering a culture of **collaborative development** and **scalable architecture**.
+More than just an app, this project serves as a **Software Engineering Lab**. Conceived by two developers under the **[Rise2Gethers](https://github.com/Rise2Gethers)** organization, the goal is to simulate the real-life cycle of a software product within a major tech company. We focus not only on writing code but on fostering a culture of **collaborative development** and **scalable architecture**.
 
 ---
 
@@ -32,7 +32,7 @@ Unlike traditional academic projects, we strictly follow market-standard process
 - [ ] **Dashboard:** Quick visualization of Current Balance and recent movements.
 - [ ] **Transaction Management:** Record Income/Outcome in < 2 seconds.
 - [ ] **Categories:** Flexible categorization system with icons and colors.
-- [X] **Offline-First:** Data persistence using **SQLite**, ensuring privacy and zero-latency.
+- [ ] **Offline-First:** Data persistence using **SQLite**, ensuring privacy and zero-latency.
 - [ ] **Analytics:** Simple charts for financial roadmap analysis.
 
 ---
@@ -48,7 +48,7 @@ The architecture was designed to be modern, type-safe, and performant.
 | **Database** | SQLite + Drizzle ORM | Robust local relational DB with full type-safety. |
 | **UI Kit** | React Native Paper | Material Design compliance with ready-to-use components. |
 | **Navigation** | React Navigation | Industry standard for stack-based navigation. |
-| **State** | Zustand (Planned) | Lightweight global state management without boilerplate. |
+| **State** | Zustand | Lightweight global state management without boilerplate. |
 
 ---
 
@@ -64,3 +64,67 @@ src/
 ├── store/       # Global State (Zustand)
 ├── theme/       # Paper Theme configuration (Colors, Fonts)
 └── utils/       # Helper functions and formatters
+```
+
+---
+
+## 🚀 How to Run
+
+Prerequisites: **Node.js (LTS)**, **Git**, and the **Expo Go** app on your phone.
+
+1. **Clone the repository:**
+
+   ```bash
+   git clone [https://github.com/Rise2Gethers/ExpanseTrackerApp.git](https://github.com/Rise2Gethers/ExpanseTrackerApp.git)
+   cd ExpanseTrackerApp
+   ```
+
+2. **Install dependencies:**
+
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+
+3. **Run the project:**
+
+   ```bash
+   npx expo start
+   ```
+
+4. **Test:**
+   Scan the QR Code displayed in the terminal using the Expo Go app (Android/iOS).
+
+---
+
+## 🤝 The Team
+
+<table>
+  <tr>
+    <td align="center">
+      <a href="https://github.com/kenjishimizu2411">
+        <img src="https://github.com/kenjishimizu2411.png" width="100px;" alt="Kenji Profile"/><br>
+        <sub>
+          <b>Kenji Shimizu</b>
+        </sub>
+      </a><br>
+      Backend & Data Specialist
+    </td>
+    <td align="center">
+      <a href="https://github.com/Jggranito">
+        <img src="https://github.com/Jggranito.png" width="100px;" alt="João Profile"/><br>
+        <sub>
+          <b>João Gabriel</b>
+        </sub>
+      </a><br>
+      Frontend & Mobile Specialist
+    </td>
+  </tr>
+</table>
+
+---
+
+<p align="center">
+  Built with 💜 and TypeScript by <a href="https://github.com/Rise2Gethers">Rise2Gethers</a>.
+</p>
