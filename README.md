@@ -1,126 +1,66 @@
-# 💸 Expanse Tracker
+# 💸 Expanse Tracker App
 
-![Status](https://img.shields.io/badge/STATUS-EM_DESENVOLVIMENTO-orange?style=for-the-badge)
+![Status](https://img.shields.io/badge/STATUS-IN_DEVELOPMENT-orange?style=for-the-badge)
 ![License](https://img.shields.io/badge/LICENSE-MIT-green?style=for-the-badge)
 ![Sprint](https://img.shields.io/badge/SPRINT-MVP_1-blue?style=for-the-badge)
+![TypeScript](https://img.shields.io/badge/Main_Lang-TypeScript-blue?style=for-the-badge&logo=typescript&logoColor=white)
 
-> **Status:** 🚧 Em Desenvolvimento (MVP - Sprint 1)
+> **Current Status:** 🚧 In Development (MVP - Sprint 1)
 
-## 🎯 Sobre o Projeto
+## 🎯 About the Project
 
-O **Expanse Tracker** é uma aplicação mobile _"Local-First"_ para gestão financeira pessoal.
+**Expanse Tracker** is a **Local-First** mobile application for personal financial management.
 
-Mais do que apenas um aplicativo, este projeto é um **laboratório de engenharia de software**. Foi concebido por dois desenvolvedores com o objetivo de simular o ciclo de vida real de um produto de software dentro de uma grande empresa, focando não apenas no código, mas na cultura de desenvolvimento colaborativo.
-
----
-
-## 💡 O Diferencial (A Metodologia)
-
-Diferente de projetos acadêmicos tradicionais, aqui seguimos rigorosamente processos de mercado para garantir qualidade e rastreabilidade:
-
-- **Metodologia Ágil:** Uso de Kanban (via GitHub Projects) e rituais de Scrum adaptados.
-- **Git Flow Profissional:** Ninguém faz commit na `main`. Utilizamos o **Feature Branch Workflow**.
-- **Code Review:** Pull Requests (PRs) são obrigatórios com revisão cruzada antes do merge.
-- **CI/CD Mental:** Foco em entregas pequenas e funcionais (Fatias Verticais/Vertical Slicing).
+More than just an app, this project serves as a **Software Engineering Lab**. Conceived by two developers under the **Rise2Gethers** organization, the goal is to simulate the real-life cycle of a software product within a major tech company. We focus not only on writing code but on fostering a culture of **collaborative development** and **scalable architecture**.
 
 ---
 
-## ✨ Funcionalidades (MVP)
+## 💡 The Differentiator (Engineering Culture)
 
-- [ ] **Dashboard Intuitivo:** Visualização rápida do Saldo Atual e últimas movimentações.
-- [ ] **Gestão de Transações:** Registro de Entradas (Receitas) e Saídas (Despesas) em < 2 segundos.
-- [ ] **Categorização:** Sistema flexível de categorias com ícones e cores.
-- [ ] **Offline-First:** Todos os dados são salvos localmente no dispositivo (**SQLite**), garantindo privacidade e funcionamento sem internet.
-- [ ] **Analytics:** Gráficos simples para análise de gastos (Roadmap).
+Unlike traditional academic projects, we strictly follow market-standard processes to ensure quality and maintainability:
 
----
-
-## 🛠️ Stack Tecnológica
-
-A arquitetura foi pensada para ser moderna, tipada e performática.
-
-| Categoria     | Tecnologia           | Motivo da Escolha                                                  |
-| :------------ | :------------------- | :----------------------------------------------------------------- |
-| **Core**      | React Native + Expo  | Desenvolvimento ágil e cross-platform (Android/iOS).               |
-| **Linguagem** | TypeScript           | Segurança de tipos e escalabilidade do código.                     |
-| **Database**  | SQLite + Drizzle ORM | Banco relacional local robusto com tipagem automática (Type-safe). |
-| **UI Kit**    | React Native Paper   | Adesão ao Material Design com componentes prontos.                 |
-| **Navegação** | React Navigation     | Padrão da indústria para navegação em pilha (Stack).               |
-| **Estado**    | Zustand              | Gerenciamento de estado global leve e sem boilerplate.             |
+- **Agile Methodology:** Continuous flow using Kanban (GitHub Projects).
+- **Professional Git Flow:** Direct commits to `main` are forbidden. We use the **Feature Branch Workflow**.
+- **Code Review:** Pull Requests (PRs) are mandatory with cross-reviews before merging.
+- **Vertical Slicing:** Focus on delivering small, functional pieces of value rather than monolithic layers.
 
 ---
 
-## 📂 Estrutura do Projeto
+## ✨ Features (MVP)
 
-Mantemos uma arquitetura limpa e modular dentro de `src`:
+- [x] **UI Foundation:** Design System implementation with React Native Paper.
+- [ ] **Dashboard:** Quick visualization of Current Balance and recent movements.
+- [ ] **Transaction Management:** Record Income/Outcome in < 2 seconds.
+- [ ] **Categories:** Flexible categorization system with icons and colors.
+- [X] **Offline-First:** Data persistence using **SQLite**, ensuring privacy and zero-latency.
+- [ ] **Analytics:** Simple charts for financial roadmap analysis.
+
+---
+
+## 🛠️ Tech Stack
+
+The architecture was designed to be modern, type-safe, and performant.
+
+| Category | Technology | Decision Driver |
+| :--- | :--- | :--- |
+| **Core** | React Native + Expo | Agile cross-platform development (Android/iOS). |
+| **Language** | TypeScript | Type safety, maintainability, and code scalability. |
+| **Database** | SQLite + Drizzle ORM | Robust local relational DB with full type-safety. |
+| **UI Kit** | React Native Paper | Material Design compliance with ready-to-use components. |
+| **Navigation** | React Navigation | Industry standard for stack-based navigation. |
+| **State** | Zustand (Planned) | Lightweight global state management without boilerplate. |
+
+---
+
+## 📂 Project Structure
+
+We maintain a clean, modular architecture within `src`:
 
 ```bash
 src/
-├── components/  # Componentes reutilizáveis (Botões, Cards, Inputs)
-├── database/    # Configuração do SQLite e Schemas do Drizzle
-├── screens/     # Telas da aplicação (Home, AddTransaction, Settings)
-├── store/       # Estados globais (Zustand)
-├── theme/       # Configuração de cores e temas (Paper)
-└── utils/       # Funções auxiliares e formatadores
-```
-
----
-
-## 🚀 Como Rodar o Projeto
-
-Pré-requisitos: **Node.js (LTS)**, **Git** e o app **Expo Go** no celular.
-
-1. **Clone o repositório:**
-
-   ```bash
-   git clone [https://github.com/kenjishimizu2411/ExpanseTrackerApp.git](https://github.com/kenjishimizu2411/ExpanseTrackerApp.git)
-   cd ExpanseTrackerApp
-   ```
-
-2. **Instale as dependências:**
-
-   ```bash
-   npm install
-   # ou
-   yarn install
-   ```
-
-3. **Execute o projeto:**
-
-   ```bash
-   npx expo start
-   ```
-
-4. **Teste:**
-   Leia o QR Code exibido no terminal com o app Expo Go (Android/iOS).
-
----
-
-## 🤝 Colaboradores
-
-<table>
-  <tr>
-    <td align="center">
-      <a href="https://github.com/kenjishimizu2411">
-        <img src="https://github.com/kenjishimizu2411.png" width="100px;" alt="Foto do Kenji"/><br>
-        <sub>
-          <b>Kenji Shimizu</b>
-        </sub>
-      </a>
-    </td>
-    <td align="center">
-      <a href="#">
-        <img src="https://github.com/Jggranito.png" width="100px;" alt="Foto do João"/><br>
-        <sub>
-          <b>João Gabriel</b>
-        </sub>
-      </a>
-    </td>
-  </tr>
-</table>
-
----
-
-<p align="center">
-  Desenvolvido com 💜 e TypeScript.
-</p>
+├── components/  # Reusable UI components (Buttons, Cards, Inputs)
+├── database/    # SQLite configuration and Drizzle Schemas
+├── screens/     # Application screens (Home, AddTransaction, Settings)
+├── store/       # Global State (Zustand)
+├── theme/       # Paper Theme configuration (Colors, Fonts)
+└── utils/       # Helper functions and formatters
