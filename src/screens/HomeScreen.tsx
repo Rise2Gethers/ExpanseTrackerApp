@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { Text, Button, TextInput, Icon, useTheme } from "react-native-paper";
 import { InputAmount, TransactionItem, Header } from "../components/index";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 const CATEGORIES = [
   { id: "1", name: "Alimentação", icon: "silverware-fork-knife" },
@@ -18,14 +19,24 @@ export function HomeScreen() {
   const [selectedCategory, setSelectedCategory] = useState<string>("1"); // Começa com Food selecionado
   const [description, setDescription] = useState("");
 
-  const today = new Date().toLocaleDateString("en-US", {
+  const today = new Date().toLocaleDateString("pt-BR", {
     month: "long",
     day: "numeric",
     year: "numeric",
   });
 
+  const [date, setDate] = useState(new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  const onChangeDate = (event: any, selectedDate?: Date) => {
+    setShowDatePicker(false);
+    if (selectedDate) {
+      setDate(selectedDate);
+    }
+  };
+
   return (
-    <View style={{ flex: 1, backgroundColor: "#FAFAFA" }}>
+    <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <Header
         title="Novo Gasto"
         showBackButton={true}
@@ -70,14 +81,34 @@ export function HomeScreen() {
 
         <View style={styles.inputsSection}>
           <Text style={styles.label}>Data</Text>
-          <TextInput
-            mode="outlined"
-            value={today}
-            editable={false}
-            right={<TextInput.Icon icon="calendar" />}
-            style={styles.inputField}
-            outlineStyle={styles.inputOutline}
-          />
+
+          <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+            <TextInput
+              mode="outlined"
+              value={date.toLocaleDateString("pt-BR")}
+              editable={false}
+              right={
+                <TextInput.Icon
+                  icon="calendar"
+                  onPress={() => setShowDatePicker(true)}
+                />
+              }
+              style={styles.inputField}
+              outlineStyle={styles.inputOutline}
+              pointerEvents="none"
+            />
+          </TouchableOpacity>
+
+          {showDatePicker && (
+            <DateTimePicker
+              testID="dateTimePicker"
+              value={date}
+              mode="date"
+              display="default"
+              onChange={onChangeDate}
+              maximumDate={new Date()}
+            />
+          )}
 
           <Text style={styles.label}>Descrição</Text>
           <TextInput
