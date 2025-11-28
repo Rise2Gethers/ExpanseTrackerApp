@@ -19,12 +19,6 @@ export function HomeScreen() {
   const [selectedCategory, setSelectedCategory] = useState<string>("1"); // Começa com Food selecionado
   const [description, setDescription] = useState("");
 
-  const today = new Date().toLocaleDateString("pt-BR", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
-
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
 
