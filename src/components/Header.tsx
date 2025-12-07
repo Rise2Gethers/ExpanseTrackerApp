@@ -6,12 +6,16 @@ interface HeaderProps {
   title: string;
   showBackButton?: boolean;
   onBackPress?: () => void;
+  rightActionIcon?: string;
+  onRightActionPress?: () => void;
 }
 
 export const Header = ({
   title,
   showBackButton = false,
   onBackPress,
+  rightActionIcon,
+  onRightActionPress,
 }: HeaderProps) => {
   const theme = useTheme();
   return (
@@ -24,7 +28,11 @@ export const Header = ({
 
       <Appbar.Content title={title} titleStyle={styles.title} />
 
-      <View style={{ width: 48 }} />
+      {rightActionIcon ? (
+        <Appbar.Action icon={rightActionIcon} onPress={onRightActionPress} />
+      ) : (
+        <View style={{ width: 48 }} />
+      )}
     </Appbar.Header>
   );
 };

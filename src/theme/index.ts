@@ -1,36 +1,45 @@
 import { MD3LightTheme, MD3DarkTheme } from "react-native-paper";
 
-// 1. Definimos nossas cores personalizadas (Brand Colors)
+// Cores da Marca (Rise2Gethers)
 const customColors = {
-  primary: "#2D74FF", // Aquele azul bonito do design
-  background: "#FAFAFA", // Fundo quase branco
-  surface: "#FFFFFF", // Fundo dos cartões
-  error: "#FF5252", // Vermelho para gastos
-  success: "#4CAF50", // Verde para receitas
-  textPrimary: "#1a1a2e", // Preto azulado (título)
-  textSecondary: "#757575", // Cinza (descrições)
+  primary: "#2D74FF",
+  backgroundLight: "#FAFAFA", // Fundo Claro (quase branco)
+  backgroundDark: "#09090B", // Fundo Escuro (quase preto)
+  surfaceLight: "#FFFFFF", // Cartão Claro
+  surfaceDark: "#1E1E1E", // Cartão Escuro
+  error: "#FF5252",
+  success: "#4CAF50",
 };
 
-// 2. Criamos o Tema Claro misturando o padrão do Paper com o nosso
+// --- TEMA CLARO ---
 export const lightTheme = {
   ...MD3LightTheme,
   colors: {
     ...MD3LightTheme.colors,
     primary: customColors.primary,
-    background: customColors.background,
-    surface: customColors.surface,
+    background: customColors.backgroundLight,
+    surface: customColors.surfaceLight,
     error: customColors.error,
-    // Podemos adicionar cores extras que não existem no padrão
-    onSurfaceVariant: customColors.textSecondary,
+    // Garante que o texto em cima do fundo claro seja escuro
+    onBackground: "#1a1a2e",
+    onSurface: "#1a1a2e",
   },
 };
 
-// 3. Deixamos o Tema Escuro engatilhado (só a estrutura por enquanto)
+// --- TEMA ESCURO ---
 export const darkTheme = {
   ...MD3DarkTheme,
   colors: {
     ...MD3DarkTheme.colors,
-    primary: customColors.primary, // Mantém o azul da marca
-    // No futuro ajustamos o resto para dark mode
+    primary: customColors.primary, // Mantém o azul
+    background: customColors.backgroundDark, // <--- FORÇA O PRETO AQUI
+    surface: customColors.surfaceDark, // <--- CARTÕES CINZA ESCURO
+    error: customColors.error,
+    // Garante que o texto em cima do fundo escuro seja branco
+    onBackground: "#FFFFFF",
+    onSurface: "#E0E0E0",
+    elevation: {
+      level1: customColors.surfaceDark, // Garante que componentes elevados fiquem escuros
+    },
   },
 };

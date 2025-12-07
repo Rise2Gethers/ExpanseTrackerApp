@@ -13,12 +13,12 @@ const CATEGORIES = [
   { id: "6", name: "Outro", icon: "dots-horizontal" },
 ];
 
-export function HomeScreen() {
+export function HomeScreen({ navigation }: any) {
   const theme = useTheme();
-  const [amount, setAmount] = useState<number | null>(0);
-  const [selectedCategory, setSelectedCategory] = useState<string>("1"); // Começa com Food selecionado
-  const [description, setDescription] = useState("");
 
+  const [amount, setAmount] = useState<number | null>(0);
+  const [selectedCategory, setSelectedCategory] = useState<string>("1");
+  const [description, setDescription] = useState("");
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
 
@@ -29,19 +29,32 @@ export function HomeScreen() {
     }
   };
 
+  const handleSave = () => {
+    alert("Gasto adicionado com sucesso!");
+
+    setAmount(0);
+    setDescription("");
+    setDate(new Date());
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <Header
         title="Novo Gasto"
-        showBackButton={true}
-        onBackPress={() => alert("Voltar")}
+        showBackButton={false}
+        rightActionIcon="cog"
+        onRightActionPress={() => navigation.navigate("Settings")}
       />
+
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.amountContainer}>
           <InputAmount value={amount} onChangeValue={setAmount} />
         </View>
 
-        <Text variant="titleMedium" style={styles.sectionTitle}>
+        <Text
+          variant="titleMedium"
+          style={[styles.sectionTitle, { color: theme.colors.onBackground }]}
+        >
           Categorias
         </Text>
 
@@ -51,18 +64,34 @@ export function HomeScreen() {
             return (
               <TouchableOpacity
                 key={cat.id}
-                style={[styles.card, isSelected && styles.cardSelected]}
+                style={[
+                  styles.card,
+                  {
+                    backgroundColor: theme.colors.surface,
+                    borderColor: theme.colors.outline,
+                  },
+                  isSelected && {
+                    borderColor: theme.colors.primary,
+                    backgroundColor: theme.colors.elevation.level2,
+                  },
+                ]}
                 onPress={() => setSelectedCategory(cat.id)}
               >
                 <Icon
                   source={cat.icon}
                   size={24}
-                  color={isSelected ? theme.colors.primary : "#333"}
+                  color={
+                    isSelected ? theme.colors.primary : theme.colors.onSurface
+                  }
                 />
                 <Text
                   style={[
                     styles.cardText,
-                    isSelected && styles.cardTextSelected,
+                    { color: theme.colors.onSurface },
+                    isSelected && {
+                      color: theme.colors.primary,
+                      fontWeight: "bold",
+                    },
                     { marginLeft: 8 },
                   ]}
                 >
@@ -74,24 +103,27 @@ export function HomeScreen() {
         </View>
 
         <View style={styles.inputsSection}>
-          <Text style={styles.label}>Data</Text>
+          <Text style={[styles.label, { color: theme.colors.onBackground }]}>
+            Data
+          </Text>
 
-          <TouchableOpacity onPress={() => setShowDatePicker(true)}>
-            <TextInput
-              mode="outlined"
-              value={date.toLocaleDateString("pt-BR")}
-              editable={false}
-              right={
-                <TextInput.Icon
-                  icon="calendar"
-                  onPress={() => setShowDatePicker(true)}
-                />
-              }
-              style={styles.inputField}
-              outlineStyle={styles.inputOutline}
-              pointerEvents="none"
-            />
-          </TouchableOpacity>
+          <TextInput
+            mode="outlined"
+            value={date.toLocaleDateString("pt-BR")}
+            editable={false}
+            style={[
+              styles.inputField,
+              { backgroundColor: theme.colors.surface },
+            ]}
+            outlineStyle={styles.inputOutline}
+            onPressIn={() => setShowDatePicker(true)}
+            right={
+              <TextInput.Icon
+                icon="calendar"
+                onPress={() => setShowDatePicker(true)}
+              />
+            }
+          />
 
           {showDatePicker && (
             <DateTimePicker
@@ -104,20 +136,27 @@ export function HomeScreen() {
             />
           )}
 
-          <Text style={styles.label}>Descrição</Text>
+          <Text style={[styles.label, { color: theme.colors.onBackground }]}>
+            Descrição
+          </Text>
+
           <TextInput
             mode="outlined"
             placeholder="ex: Lanche com os amigos."
+            placeholderTextColor={theme.colors.onSurfaceDisabled}
             value={description}
             onChangeText={setDescription}
-            style={styles.inputField}
+            style={[
+              styles.inputField,
+              { backgroundColor: theme.colors.surface },
+            ]}
             outlineStyle={styles.inputOutline}
           />
         </View>
 
         <Button
           mode="contained"
-          onPress={() => alert("Gasto adicionado!")}
+          onPress={handleSave}
           buttonColor={theme.colors.primary}
           textColor="#FFF"
           contentStyle={{ height: 56 }}
@@ -127,32 +166,35 @@ export function HomeScreen() {
         </Button>
 
         <View style={{ marginTop: 30, gap: 10 }}>
-          <Text variant="titleLarge" style={{ fontWeight: "bold" }}>
+          <Text
+            variant="titleLarge"
+            style={{ fontWeight: "bold", color: theme.colors.onBackground }}
+          >
             Últimos lançamentos
           </Text>
 
           <TransactionItem
-            title="Almoço Burger King"
+            title="Docin depois do almoço"
             description="Hoje, 12:30"
-            amount={45.9}
+            amount={12.0}
             type="outcome"
-            categoryIcon="hamburger"
+            categoryIcon="candycane"
           />
 
           <TransactionItem
-            title="Salário Estágio"
-            description="05 Out"
-            amount={1200.0}
+            title="BETÃO PAGOU BEM"
+            description="29 Nov, 22:23"
+            amount={700.0}
             type="income"
-            categoryIcon="bank"
+            categoryIcon="cash-100"
           />
 
           <TransactionItem
-            title="Uber p/ Facul"
-            description="Ontem"
-            amount={14.2}
+            title="Voltando de motinha pra casa"
+            description="Hoje, 17:10"
+            amount={7.2}
             type="outcome"
-            categoryIcon="car"
+            categoryIcon="motorbike"
           />
         </View>
       </ScrollView>
@@ -163,7 +205,6 @@ export function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    backgroundColor: "#FAFAFA",
     paddingBottom: 40,
   },
   amountContainer: {
@@ -173,7 +214,6 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontWeight: "bold",
     marginBottom: 10,
-    color: "#1a1a2e",
   },
   gridContainer: {
     flexDirection: "row",
@@ -186,41 +226,32 @@ const styles = StyleSheet.create({
     width: "48%",
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
+    // Cor removida daqui
     borderRadius: 12,
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderWidth: 1,
-    borderColor: "#E0E0E0",
+    // Border color removido daqui
     marginBottom: 10,
   },
-  cardSelected: {
-    borderColor:
-      "isSelected && { color: theme.colors.primary, fontWeight: 'bold' }",
-    backgroundColor: "#EDF4FF",
-  },
+  // cardSelected removido pois movemos a lógica para inline style
   cardText: {
     fontWeight: "500",
-    color: "#333",
   },
-  cardTextSelected: {
-    color: "#2D74FF",
-    fontWeight: "bold",
-  },
+  // cardTextSelected removido pois movemos a lógica para inline style
   inputsSection: {
     gap: 15,
   },
   label: {
     fontSize: 14,
-    color: "#333",
     marginBottom: 5,
   },
   inputField: {
-    backgroundColor: "#fff",
+    // Background removido
   },
   inputOutline: {
     borderRadius: 12,
-    borderColor: "#E0E0E0",
+    borderColor: "#E0E0E0", // Opcional: pode usar theme.colors.outline se quiser
   },
   saveButton: {
     marginTop: 30,

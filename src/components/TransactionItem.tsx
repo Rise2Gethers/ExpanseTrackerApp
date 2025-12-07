@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet } from "react-native";
-import { List, Text, MD3Colors } from "react-native-paper";
+import { List, Text, MD3Colors, useTheme } from "react-native-paper"; // <--- 1. Import useTheme
 
 interface TransactionItemProps {
   title: string;
@@ -19,24 +19,33 @@ export const TransactionItem = ({
   categoryIcon = "cash",
   onPress,
 }: TransactionItemProps) => {
-  const amountColor = type === "outcome" ? MD3Colors.error50 : "#4CAF50";
+  const theme = useTheme(); // <--- 2. Acessamos as cores atuais
 
-  const formattedAmount = new Intl.NumberFormat("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-  }).format(amount);
+  // Usamos cores do tema para ficar harmônico (Vermelho do tema ou Verde)
+  const amountColor = type === "outcome" ? theme.colors.error : "#4CAF50";
+
+  // Formatação segura
+  const formattedAmount = `R$ ${amount.toFixed(2).replace(".", ",")}`;
 
   return (
     <List.Item
       title={title}
+      // 3. Cor do Título: Preto no claro, Branco no escuro
+      titleStyle={{ fontWeight: "bold", color: theme.colors.onSurface }}
       description={description}
+      // 4. Cor da Descrição: Cinza escuro no claro, Cinza claro no escuro
+      descriptionStyle={{ color: theme.colors.onSurfaceVariant }}
       onPress={onPress}
       left={(props) => (
         <List.Icon
           {...props}
           icon={categoryIcon}
-          color={MD3Colors.primary50}
-          style={{ borderRadius: 12, width: 25 }}
+          color={theme.colors.primary}
+          // 5. Fundo do ícone também se adapta (fica um cinza leve no dark)
+          style={[
+            styles.iconStyles,
+            { backgroundColor: theme.colors.elevation.level3 },
+          ]}
         />
       )}
       right={() => (
@@ -45,33 +54,31 @@ export const TransactionItem = ({
           style={{
             color: amountColor,
             alignSelf: "center",
-            fontWeight: "normal",
+            fontWeight: "bold",
           }}
         >
           {type === "outcome" ? "- " : "+ "}
           {formattedAmount}
         </Text>
       )}
-      style={styles.container}
+      // 6. O PULO DO GATO: O Fundo do cartão agora muda de cor!
+      style={[styles.container, { backgroundColor: theme.colors.surface }]}
     />
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    height: 60,
-    backgroundColor: "#fff",
+    // backgroundColor: '#fff', <--- REMOVIDO! Isso matava o dark mode
     borderRadius: 12,
-    marginBottom: 2,
-    paddingHorizontal: 12,
-    elevation: 4,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+    elevation: 1,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.05,
     shadowRadius: 2,
   },
   iconStyles: {
-    backgroundColor: MD3Colors.secondary90,
     borderRadius: 10,
     marginRight: 10,
   },
