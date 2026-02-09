@@ -30,13 +30,6 @@ async function initializeDatabase(db: SQLiteDatabase) {
   try {
     await db.execAsync(`
         PRAGMA journal_mode = WAL;
-      
-      -- DICA DE MENTOR: 
-      -- Essas duas linhas abaixo destroem as tabelas velhas antes de criar as novas.
-      -- Isso garante que sua alteração de coluna sempre funcione.
-      -- REMOVA ISSO QUANDO FOR PARA PRODUÇÃO!
-      DROP TABLE IF EXISTS products;
-      DROP TABLE IF EXISTS categories;
 
       CREATE TABLE IF NOT EXISTS categories (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
