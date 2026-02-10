@@ -1,25 +1,17 @@
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import {
-  PaperProvider,
-  MD3LightTheme as DefaultTheme,
-} from "react-native-paper";
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { SQLiteProvider } from "expo-sqlite";
-import { type SQLiteDatabase } from "expo-sqlite";
-
-// Importando a tela que criamos antes
-import { HomeScreen } from "./src/screens/HomeScreen";
-import { NewEntryScreen } from "./src/screens/NewEntryScreen";
 import { PaperProvider } from "react-native-paper";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+// 1. IMPORTS DO JOÃO (Banco)
+import { SQLiteProvider, type SQLiteDatabase } from "expo-sqlite";
 
-// Imports
+// 2. IMPORTS DO KENJI (Tema e Telas)
 import { lightTheme, darkTheme } from "./src/theme";
 import { HomeScreen } from "./src/screens/HomeScreen";
 import { SettingsScreen } from "./src/screens/SettingsScreen";
+// Importando a tela do João se ela existir no seu projeto (se der erro, comente essa linha)
+import { NewEntryScreen } from "./src/screens/NewEntryScreen";
 import {
   PreferencesProvider,
   usePreferences,
@@ -27,31 +19,20 @@ import {
 
 const Stack = createNativeStackNavigator();
 
-// Tema personalizado (podemos mexer nas cores depois)
-const theme = {
-  ...DefaultTheme,
-  colors: {
-    ...DefaultTheme.colors,
-    primary: "#6200ee", // Exemplo de cor
-    secondary: "#03dac6",
-  },
-};
-
+// 3. FUNÇÃO DO JOÃO (Inicializar Banco)
 async function initializeDatabase(db: SQLiteDatabase) {
   try {
     await db.execAsync(`
-        PRAGMA journal_mode = WAL;
-
+      PRAGMA journal_mode = WAL;
       CREATE TABLE IF NOT EXISTS categories (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         color TEXT
       );
-
       CREATE TABLE IF NOT EXISTS products (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
-        category_id INTEGER -- A coluna que estava faltando
+        category_id INTEGER
       );
     `);
     console.log("Banco REINICIADO com sucesso!");
@@ -60,7 +41,8 @@ async function initializeDatabase(db: SQLiteDatabase) {
   }
 }
 
-// Componente Filho (Cuida da Navegação e Tema)
+// 4. COMPONENTE DO KENJI (Navegação + Tema)
+// + Adicionamos as rotas do João aqui dentro
 function AppContent() {
   const { isThemeDark } = usePreferences();
   const theme = isThemeDark ? darkTheme : lightTheme;
@@ -69,6 +51,7 @@ function AppContent() {
     <PaperProvider theme={theme}>
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Home">
+          {/* Suas Telas */}
           <Stack.Screen
             name="Home"
             component={HomeScreen}
@@ -79,6 +62,16 @@ function AppContent() {
             component={SettingsScreen}
             options={{ headerShown: false }}
           />
+
+          {/* Tela do João (Nova Entrada) */}
+          <Stack.Screen
+            name="NewEntryScreen"
+            component={NewEntryScreen}
+            options={{
+              title: "Nova Entrada",
+              presentation: "modal", // Fica bonito abrindo como modal
+            }}
+          />
         </Stack.Navigator>
         <StatusBar style={isThemeDark ? "light" : "dark"} />
       </NavigationContainer>
@@ -86,41 +79,20 @@ function AppContent() {
   );
 }
 
-// Componente Pai (Cuida da Infraestrutura)
+// 5. O COMPONENTE PAI (A Fusão Final)
 export default function App() {
   return (
     <SafeAreaProvider>
-      {/* 2. Fornece o estilo do React Native Paper para todo o app */}
-      <PaperProvider theme={theme}>
+      {/* O Tema abraça tudo */}
+      <PreferencesProvider>
+        {/* O Banco abraça o conteúdo */}
         <SQLiteProvider
           databaseName="products.db"
           onInit={initializeDatabase}
           useSuspense
         >
-          {/* 3. Gerencia o histórico de navegação */}
-          <NavigationContainer>
-            <Stack.Navigator>
-              {/* Aqui definimos as rotas (telas) */}
-              <Stack.Screen
-                name="Home"
-                component={HomeScreen}
-                options={{ title: "Início" }}
-              />
-              <Stack.Screen
-                name="NewEntryScreen"
-                component={NewEntryScreen}
-                options={{
-                  title: "Nova Entrada",
-                  presentation: "modal",
-                }}
-              />
-            </Stack.Navigator>
-            <StatusBar style="auto" />
-          </NavigationContainer>
+          <AppContent />
         </SQLiteProvider>
-      </PaperProvider>
-      <PreferencesProvider>
-        <AppContent />
       </PreferencesProvider>
     </SafeAreaProvider>
   );

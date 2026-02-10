@@ -1,158 +1,3 @@
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  FlatList,
-  Pressable,
-  Alert,
-} from "react-native";
-import { useSQLiteContext } from "expo-sqlite";
-import { drizzle } from "drizzle-orm/expo-sqlite";
-import * as productSchema from "../database/schemas/productSchema";
-import { asc, eq, like } from "drizzle-orm";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { useFocusEffect } from "@react-navigation/native";
-import { useCallback } from "react";
-
-type Data = {
-  id: number;
-  name: string;
-};
-
-type RootStackParamList = {
-  Home: undefined;
-  NewEntryScreen: undefined;
-};
-type Props = NativeStackScreenProps<RootStackParamList, "Home">;
-
-export function HomeScreen({ navigation }: Props) {
-  const [search, setSearch] = useState("");
-  const [data, setData] = useState<Data[]>([]);
-
-  const database = useSQLiteContext();
-  const db = drizzle(database, { schema: productSchema });
-
-  async function fetchProducts() {
-    try {
-      const response = await db.query.product.findMany({
-        where: like(productSchema.product.name, `%${search}%`),
-        orderBy: [asc(productSchema.product.name)],
-      });
-      setData(response);
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  async function remove(id: number) {
-    try {
-      Alert.alert("Remover", "Deseja remover?", [
-        {
-          text: "Cancelar",
-          style: "cancel",
-        },
-        {
-          text: "Sim",
-          onPress: async () => {
-            const product = await db.query.product.findFirst({
-              where: eq(productSchema.product.id, id),
-            });
-            await db
-              .delete(productSchema.product)
-              .where(eq(productSchema.product.id, id));
-
-            await db
-              .delete(productSchema.category)
-              .where(eq(productSchema.category.id, product.categoryId));
-
-            await fetchProducts();
-          },
-        },
-      ]);
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  async function show(id: number) {
-    try {
-      const product = await db.query.product.findFirst({
-        where: eq(productSchema.product.id, id),
-      });
-      const category = product?.categoryId
-        ? await db.query.category.findFirst({
-            where: eq(productSchema.category.id, product.categoryId),
-          })
-        : null;
-      console.log(product, category);
-
-      if (product && category) {
-        console.log("=== DADOS RECUPERADOS ===");
-        console.log(JSON.stringify({ product, category }, null, 2));
-        console.log("=========================");
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  useFocusEffect(
-    useCallback(() => {
-      fetchProducts();
-
-      return () => {};
-    }, []),
-  );
-
-  useEffect(() => {
-    fetchProducts();
-  }, [search]);
-
-  return (
-    <View style={styles.container}>
-      <TextInput
-        placeholder="Pesquisar..."
-        style={{
-          height: 54,
-          borderWidth: 1,
-          borderRadius: 10,
-          borderColor: "#999",
-          paddingHorizontal: 16,
-        }}
-        onChangeText={setSearch}
-        value={search}
-      />
-      <FlatList
-        data={data}
-        keyExtractor={(item) => String(item.id)}
-        renderItem={({ item }) => (
-          <Pressable
-            style={{ padding: 16, borderWidth: 1, borderRadius: 7 }}
-            onLongPress={() => remove(item.id)}
-            onPress={() => show(item.id)}
-          >
-            <Text>{item.name}</Text>
-          </Pressable>
-        )}
-        ListEmptyComponent={() => <Text>Lista vazia!</Text>}
-        contentContainerStyle={{ gap: 16 }}
-      />
-      <View
-        style={{
-          width: 67,
-          borderRadius: 50,
-          overflow: "hidden",
-          backgroundColor: "#1f9be2ff",
-        }}
-      >
-        <Pressable onPress={() => navigation.navigate("NewEntryScreen")}>
-          <Text style={{ color: "#ffffff", fontSize: 50, textAlign: "center" }}>
-            +
-          </Text>
-        </Pressable>
-      </View>
 import React, { useState } from "react";
 import { View, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { Text, Button, TextInput, Icon, useTheme } from "react-native-paper";
@@ -358,72 +203,74 @@ export function HomeScreen({ navigation }: any) {
 }
 
 const styles = StyleSheet.create({
+  // Ajuste principal para destravar o scroll
   container: {
-    flex: 1,
-    justifyContent: "center",
-    padding: 32,
+    padding: 24,
+    paddingTop: 40,
+    paddingBottom: 100, // Espaço extra no final para o scroll não cortar o último item
     gap: 16,
-    zIndex: 1,
-    position: "static",
+    // REMOVIDO: flex: 1
+    // REMOVIDO: justifyContent: center
+    // REMOVIDO: position: static (não precisa)
   },
-  containerModal: {
-    flex: 1,
-    backgroundColor: "white",
-    gap: 16,
-    padding: 20,
-    zIndex: 100,
-    position: "relative",
-    padding: 20,
-    paddingBottom: 40,
-  },
+
   amountContainer: {
-    marginVertical: 20,
+    marginVertical: 10, // Reduzi um pouco para caber melhor
     alignItems: "center",
   },
+
   sectionTitle: {
     fontWeight: "bold",
-    marginBottom: 10,
+    marginBottom: 5,
+    marginTop: 10,
   },
+
   gridContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
     gap: 10,
-    marginBottom: 20,
+    marginBottom: 10,
   },
+
   card: {
     width: "48%",
     flexDirection: "row",
     alignItems: "center",
-    // Cor removida daqui
     borderRadius: 12,
-    paddingVertical: 8,
+    paddingVertical: 12, // Aumentei um pouco a área de toque
     paddingHorizontal: 12,
     borderWidth: 1,
-    // Border color removido daqui
-    marginBottom: 10,
+    marginBottom: 8,
   },
-  // cardSelected removido pois movemos a lógica para inline style
+
   cardText: {
+    fontSize: 13, // Ajuste fino de fonte
     fontWeight: "500",
   },
-  // cardTextSelected removido pois movemos a lógica para inline style
+
   inputsSection: {
     gap: 15,
+    marginTop: 10,
   },
+
   label: {
     fontSize: 14,
     marginBottom: 5,
+    fontWeight: "600",
   },
+
   inputField: {
-    // Background removido
+    fontSize: 16,
   },
+
   inputOutline: {
     borderRadius: 12,
-    borderColor: "#E0E0E0", // Opcional: pode usar theme.colors.outline se quiser
+    borderColor: "#E0E0E0",
   },
+
   saveButton: {
-    marginTop: 30,
+    marginTop: 20,
     borderRadius: 12,
     justifyContent: "center",
   },
