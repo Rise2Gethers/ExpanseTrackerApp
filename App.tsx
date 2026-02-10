@@ -12,8 +12,19 @@ import { type SQLiteDatabase } from "expo-sqlite";
 // Importando a tela que criamos antes
 import { HomeScreen } from "./src/screens/HomeScreen";
 import { NewEntryScreen } from "./src/screens/NewEntryScreen";
+import { PaperProvider } from "react-native-paper";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-// Criando o navegador tipo "Pilha" (uma tela sobre a outra)
+// Imports
+import { lightTheme, darkTheme } from "./src/theme";
+import { HomeScreen } from "./src/screens/HomeScreen";
+import { SettingsScreen } from "./src/screens/SettingsScreen";
+import {
+  PreferencesProvider,
+  usePreferences,
+} from "./src/contexts/PreferencesContext";
+
 const Stack = createNativeStackNavigator();
 
 // Tema personalizado (podemos mexer nas cores depois)
@@ -49,9 +60,35 @@ async function initializeDatabase(db: SQLiteDatabase) {
   }
 }
 
+// Componente Filho (Cuida da Navegação e Tema)
+function AppContent() {
+  const { isThemeDark } = usePreferences();
+  const theme = isThemeDark ? darkTheme : lightTheme;
+
+  return (
+    <PaperProvider theme={theme}>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Home">
+          <Stack.Screen
+            name="Home"
+            component={HomeScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Settings"
+            component={SettingsScreen}
+            options={{ headerShown: false }}
+          />
+        </Stack.Navigator>
+        <StatusBar style={isThemeDark ? "light" : "dark"} />
+      </NavigationContainer>
+    </PaperProvider>
+  );
+}
+
+// Componente Pai (Cuida da Infraestrutura)
 export default function App() {
   return (
-    // 1. Garante que o app não fique embaixo da barra de status/notch
     <SafeAreaProvider>
       {/* 2. Fornece o estilo do React Native Paper para todo o app */}
       <PaperProvider theme={theme}>
@@ -82,6 +119,9 @@ export default function App() {
           </NavigationContainer>
         </SQLiteProvider>
       </PaperProvider>
+      <PreferencesProvider>
+        <AppContent />
+      </PreferencesProvider>
     </SafeAreaProvider>
   );
 }
