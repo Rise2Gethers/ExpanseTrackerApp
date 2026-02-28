@@ -3,14 +3,11 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 import { PaperProvider } from "react-native-paper";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-// 1. IMPORTS DO JOÃO (Banco)
 import { SQLiteProvider, type SQLiteDatabase } from "expo-sqlite";
 
-// 2. IMPORTS DO KENJI (Tema e Telas)
 import { lightTheme, darkTheme } from "./src/theme";
 import { HomeScreen } from "./src/screens/HomeScreen";
 import { SettingsScreen } from "./src/screens/SettingsScreen";
-// Importando a tela do João se ela existir no seu projeto (se der erro, comente essa linha)
 import { NewEntryScreen } from "./src/screens/NewEntryScreen";
 import {
   PreferencesProvider,
@@ -19,7 +16,7 @@ import {
 
 const Stack = createNativeStackNavigator();
 
-// 3. FUNÇÃO DO JOÃO (Inicializar Banco)
+// 1. Inicializar Banco
 async function initializeDatabase(db: SQLiteDatabase) {
   try {
     await db.execAsync(`
@@ -41,8 +38,7 @@ async function initializeDatabase(db: SQLiteDatabase) {
   }
 }
 
-// 4. COMPONENTE DO KENJI (Navegação + Tema)
-// + Adicionamos as rotas do João aqui dentro
+// 2. Navegação + Tema
 function AppContent() {
   const { isThemeDark } = usePreferences();
   const theme = isThemeDark ? darkTheme : lightTheme;
@@ -51,7 +47,6 @@ function AppContent() {
     <PaperProvider theme={theme}>
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Home">
-          {/* Suas Telas */}
           <Stack.Screen
             name="Home"
             component={HomeScreen}
@@ -62,14 +57,12 @@ function AppContent() {
             component={SettingsScreen}
             options={{ headerShown: false }}
           />
-
-          {/* Tela do João (Nova Entrada) */}
           <Stack.Screen
             name="NewEntryScreen"
             component={NewEntryScreen}
             options={{
               title: "Nova Entrada",
-              presentation: "modal", // Fica bonito abrindo como modal
+              presentation: "modal",
             }}
           />
         </Stack.Navigator>
@@ -79,13 +72,11 @@ function AppContent() {
   );
 }
 
-// 5. O COMPONENTE PAI (A Fusão Final)
+// 3. COMPONENTE PAI
 export default function App() {
   return (
     <SafeAreaProvider>
-      {/* O Tema abraça tudo */}
       <PreferencesProvider>
-        {/* O Banco abraça o conteúdo */}
         <SQLiteProvider
           databaseName="products.db"
           onInit={initializeDatabase}

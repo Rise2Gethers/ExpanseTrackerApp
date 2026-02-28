@@ -1,8 +1,21 @@
-import React, { useState } from "react";
-import { View, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
+import {
+  View,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  FlatList,
+  Pressable,
+  Alert,
+} from "react-native";
 import { Text, Button, TextInput, Icon, useTheme } from "react-native-paper";
 import { InputAmount, TransactionItem, Header } from "../components/index";
-import DateTimePicker from "@react-native-community/datetimepicker";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { useSQLiteContext } from "expo-sqlite";
+import { drizzle } from "drizzle-orm/expo-sqlite";
+import * as productSchema from "../database/schemas/productSchema";
+import { asc, eq, like } from "drizzle-orm";
+import { useFocusEffect } from "@react-navigation/native";
 
 const CATEGORIES = [
   { id: "1", name: "Alimentação", icon: "silverware-fork-knife" },
@@ -13,265 +26,197 @@ const CATEGORIES = [
   { id: "6", name: "Outro", icon: "dots-horizontal" },
 ];
 
+type Data = {
+  id: number;
+  name: string;
+};
+
+type RootStackParamList = {
+  Home: undefined;
+  NewEntryScreen: undefined;
+};
+type Props = NativeStackScreenProps<RootStackParamList, "Home">;
+
 export function HomeScreen({ navigation }: any) {
   const theme = useTheme();
 
+  const database = useSQLiteContext();
+  const db = drizzle(database, { schema: productSchema });
+
+  const [search, setSearch] = useState("");
+  const [data, setData] = useState<Data[]>([]);
+
   const [amount, setAmount] = useState<number | null>(0);
-  const [selectedCategory, setSelectedCategory] = useState<string>("1");
-  const [description, setDescription] = useState("");
-  const [date, setDate] = useState(new Date());
-  const [showDatePicker, setShowDatePicker] = useState(false);
 
-  const onChangeDate = (event: any, selectedDate?: Date) => {
-    setShowDatePicker(false);
-    if (selectedDate) {
-      setDate(selectedDate);
+  async function fetchProducts() {
+    try {
+      const response = await db.query.product.findMany({
+        where: like(productSchema.product.name, `%${search}%`),
+        orderBy: [asc(productSchema.product.name)],
+      });
+      setData(response);
+    } catch (error) {
+      console.log(error);
     }
-  };
+  }
 
-  const handleSave = () => {
-    alert("Gasto adicionado com sucesso!");
+  async function remove(id: number) {
+    try {
+      Alert.alert("Remover", "Deseja remover?", [
+        {
+          text: "Cancelar",
+          style: "cancel",
+        },
+        {
+          text: "Sim",
+          onPress: async () => {
+            const product = await db.query.product.findFirst({
+              where: eq(productSchema.product.id, id),
+            });
+            await db
+              .delete(productSchema.product)
+              .where(eq(productSchema.product.id, id));
 
-    setAmount(0);
-    setDescription("");
-    setDate(new Date());
-  };
+            await db
+              .delete(productSchema.category)
+              .where(eq(productSchema.category.id, product.categoryId));
+
+            await fetchProducts();
+          },
+        },
+      ]);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchProducts();
+
+      return () => {};
+    }, []),
+  );
+
+  useEffect(() => {
+    fetchProducts();
+  }, [search]);
+
+  async function show(id: number) {
+    try {
+      const product = await db.query.product.findFirst({
+        where: eq(productSchema.product.id, id),
+      });
+      const category = product?.categoryId
+        ? await db.query.category.findFirst({
+            where: eq(productSchema.category.id, product.categoryId),
+          })
+        : null;
+      console.log(product, category);
+
+      if (product && category) {
+        console.log("=== DADOS RECUPERADOS ===");
+        console.log(JSON.stringify({ product, category }, null, 2));
+        console.log("=========================");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
       <Header
-        title="Novo Gasto"
+        title="Home"
         showBackButton={false}
         rightActionIcon="cog"
         onRightActionPress={() => navigation.navigate("Settings")}
       />
 
-      <ScrollView contentContainerStyle={styles.container}>
+      <View style={{ flex: 1, paddingHorizontal: 24, paddingBottom: 50 }}>
         <View style={styles.amountContainer}>
           <InputAmount value={amount} onChangeValue={setAmount} />
         </View>
 
         <Text
-          variant="titleMedium"
-          style={[styles.sectionTitle, { color: theme.colors.onBackground }]}
+          variant="titleLarge"
+          style={{
+            fontWeight: "bold",
+            color: theme.colors.onBackground,
+            marginVertical: 20,
+          }}
         >
-          Categorias
+          Últimos lançamentos
         </Text>
 
-        <View style={styles.gridContainer}>
-          {CATEGORIES.map((cat) => {
-            const isSelected = selectedCategory === cat.id;
-            return (
-              <TouchableOpacity
-                key={cat.id}
-                style={[
-                  styles.card,
-                  {
-                    backgroundColor: theme.colors.surface,
-                    borderColor: theme.colors.outline,
-                  },
-                  isSelected && {
-                    borderColor: theme.colors.primary,
-                    backgroundColor: theme.colors.elevation.level2,
-                  },
-                ]}
-                onPress={() => setSelectedCategory(cat.id)}
-              >
-                <Icon
-                  source={cat.icon}
-                  size={24}
-                  color={
-                    isSelected ? theme.colors.primary : theme.colors.onSurface
-                  }
-                />
-                <Text
-                  style={[
-                    styles.cardText,
-                    { color: theme.colors.onSurface },
-                    isSelected && {
-                      color: theme.colors.primary,
-                      fontWeight: "bold",
-                    },
-                    { marginLeft: 8 },
-                  ]}
-                >
-                  {cat.name}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
-        <View style={styles.inputsSection}>
-          <Text style={[styles.label, { color: theme.colors.onBackground }]}>
-            Data
-          </Text>
-
-          <TextInput
-            mode="outlined"
-            value={date.toLocaleDateString("pt-BR")}
-            editable={false}
-            style={[
-              styles.inputField,
-              { backgroundColor: theme.colors.surface },
-            ]}
-            outlineStyle={styles.inputOutline}
-            onPressIn={() => setShowDatePicker(true)}
-            right={
-              <TextInput.Icon
-                icon="calendar"
-                onPress={() => setShowDatePicker(true)}
+        <FlatList
+          data={data}
+          keyExtractor={(item) => String(item.id)}
+          renderItem={({ item }) => (
+            <Pressable
+              onLongPress={() => remove(item.id)}
+              onPress={() => show(item.id)}
+            >
+              <TransactionItem
+                title={item.name}
+                description="Hoje, 12:30"
+                amount={12.0}
+                type="outcome"
+                categoryIcon="candycane"
               />
-            }
-          />
-
-          {showDatePicker && (
-            <DateTimePicker
-              testID="dateTimePicker"
-              value={date}
-              mode="date"
-              display="default"
-              onChange={onChangeDate}
-              maximumDate={new Date()}
+            </Pressable>
+          )}
+          ListEmptyComponent={() => (
+            <TransactionItem
+              title="Lista vazia"
+              description=""
+              amount={0}
+              type="empty"
+              categoryIcon=""
             />
           )}
+          contentContainerStyle={{ gap: 15, paddingBottom: 100 }}
+          style={{ flex: 1 }}
+        />
+      </View>
 
-          <Text style={[styles.label, { color: theme.colors.onBackground }]}>
-            Descrição
-          </Text>
-
-          <TextInput
-            mode="outlined"
-            placeholder="ex: Lanche com os amigos."
-            placeholderTextColor={theme.colors.onSurfaceDisabled}
-            value={description}
-            onChangeText={setDescription}
-            style={[
-              styles.inputField,
-              { backgroundColor: theme.colors.surface },
-            ]}
-            outlineStyle={styles.inputOutline}
-          />
-        </View>
-
-        <Button
-          mode="contained"
-          onPress={handleSave}
-          buttonColor={theme.colors.primary}
-          textColor="#FFF"
-          contentStyle={{ height: 56 }}
-          style={styles.saveButton}
-        >
-          Salvar Despesa
-        </Button>
-
-        <View style={{ marginTop: 30, gap: 10 }}>
-          <Text
-            variant="titleLarge"
-            style={{ fontWeight: "bold", color: theme.colors.onBackground }}
-          >
-            Últimos lançamentos
-          </Text>
-
-          <TransactionItem
-            title="Docin depois do almoço"
-            description="Hoje, 12:30"
-            amount={12.0}
-            type="outcome"
-            categoryIcon="candycane"
-          />
-
-          <TransactionItem
-            title="BETÃO PAGOU BEM"
-            description="29 Nov, 22:23"
-            amount={700.0}
-            type="income"
-            categoryIcon="cash-100"
-          />
-
-          <TransactionItem
-            title="Voltando de motinha pra casa"
-            description="Hoje, 17:10"
-            amount={7.2}
-            type="outcome"
-            categoryIcon="motorbike"
-          />
-        </View>
-      </ScrollView>
+      {/* Botão Flutuante (FAB) */}
+      <View style={styles.fabContainer}>
+        <Pressable onPress={() => navigation.navigate("NewEntryScreen")}>
+          <Text style={styles.fabText}>+</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  // Ajuste principal para destravar o scroll
-  container: {
-    padding: 24,
-    paddingTop: 40,
-    paddingBottom: 100, // Espaço extra no final para o scroll não cortar o último item
-    gap: 16,
-    // REMOVIDO: flex: 1
-    // REMOVIDO: justifyContent: center
-    // REMOVIDO: position: static (não precisa)
-  },
-
   amountContainer: {
-    marginVertical: 10, // Reduzi um pouco para caber melhor
+    marginTop: 40,
+    marginBottom: 20,
     alignItems: "center",
   },
-
-  sectionTitle: {
-    fontWeight: "bold",
-    marginBottom: 5,
-    marginTop: 10,
-  },
-
-  gridContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    gap: 10,
-    marginBottom: 10,
-  },
-
-  card: {
-    width: "48%",
-    flexDirection: "row",
-    alignItems: "center",
-    borderRadius: 12,
-    paddingVertical: 12, // Aumentei um pouco a área de toque
-    paddingHorizontal: 12,
-    borderWidth: 1,
-    marginBottom: 8,
-  },
-
-  cardText: {
-    fontSize: 13, // Ajuste fino de fonte
-    fontWeight: "500",
-  },
-
-  inputsSection: {
-    gap: 15,
-    marginTop: 10,
-  },
-
-  label: {
-    fontSize: 14,
-    marginBottom: 5,
-    fontWeight: "600",
-  },
-
-  inputField: {
-    fontSize: 16,
-  },
-
-  inputOutline: {
-    borderRadius: 12,
-    borderColor: "#E0E0E0",
-  },
-
-  saveButton: {
-    marginTop: 20,
-    borderRadius: 12,
+  fabContainer: {
+    width: 67,
+    height: 67,
+    borderRadius: 35,
+    overflow: "hidden",
+    backgroundColor: "#1f9be2ff",
+    position: "absolute",
+    bottom: 30,
+    right: 30,
     justifyContent: "center",
+    alignItems: "center",
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  fabText: {
+    color: "#ffffff",
+    fontSize: 40,
+    textAlign: "center",
+    marginTop: -5,
   },
 });
