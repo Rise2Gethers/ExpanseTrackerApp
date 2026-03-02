@@ -18,15 +18,16 @@ import { asc, eq, like } from "drizzle-orm";
 import { useFocusEffect } from "@react-navigation/native";
 
 const CATEGORIES = [
-  { id: "1", name: "Alimentação", icon: "silverware-fork-knife" },
-  { id: "2", name: "Transporte", icon: "bus" },
-  { id: "3", name: "Entretenimento", icon: "party-popper" },
-  { id: "4", name: "Compras", icon: "shopping" },
-  { id: "5", name: "Contas", icon: "file-document-outline" },
-  { id: "6", name: "Outro", icon: "dots-horizontal" },
+  { id: 1, name: "Alimentação", icon: "silverware-fork-knife" },
+  { id: 2, name: "Transporte", icon: "bus" },
+  { id: 3, name: "Entretenimento", icon: "party-popper" },
+  { id: 4, name: "Compras", icon: "shopping" },
+  { id: 5, name: "Contas", icon: "file-document-outline" },
+  { id: 6, name: "Outro", icon: "dots-horizontal" },
 ];
 
 type Data = {
+  categoryId: string;
   id: number;
   name: string;
 };
@@ -46,13 +47,13 @@ export function HomeScreen({ navigation }: any) {
   const [search, setSearch] = useState("");
   const [data, setData] = useState<Data[]>([]);
 
-  const [amount, setAmount] = useState<number | null>(0);
+  const [amount, setAmount] = useState<number | null>(100);
 
   async function fetchProducts() {
     try {
-      const response = await db.query.product.findMany({
-        where: like(productSchema.product.name, `%${search}%`),
-        orderBy: [asc(productSchema.product.name)],
+      const response = await db.query.entry.findMany({
+        where: like(productSchema.entry.name, `%${search}%`),
+        orderBy: [asc(productSchema.entry.name)],
       });
       setData(response);
     } catch (error) {
@@ -70,16 +71,16 @@ export function HomeScreen({ navigation }: any) {
         {
           text: "Sim",
           onPress: async () => {
-            const product = await db.query.product.findFirst({
-              where: eq(productSchema.product.id, id),
+            const entry = await db.query.entry.findFirst({
+              where: eq(productSchema.entry.id, id),
             });
             await db
-              .delete(productSchema.product)
-              .where(eq(productSchema.product.id, id));
+              .delete(productSchema.entry)
+              .where(eq(productSchema.entry.id, id));
 
             await db
               .delete(productSchema.category)
-              .where(eq(productSchema.category.id, product.categoryId));
+              .where(eq(productSchema.category.id, entry.categoryId));
 
             await fetchProducts();
           },
@@ -93,7 +94,6 @@ export function HomeScreen({ navigation }: any) {
   useFocusEffect(
     useCallback(() => {
       fetchProducts();
-
       return () => {};
     }, []),
   );
@@ -104,19 +104,19 @@ export function HomeScreen({ navigation }: any) {
 
   async function show(id: number) {
     try {
-      const product = await db.query.product.findFirst({
-        where: eq(productSchema.product.id, id),
+      const entry = await db.query.entry.findFirst({
+        where: eq(productSchema.entry.id, id),
       });
-      const category = product?.categoryId
+      const category = entry?.categoryId
         ? await db.query.category.findFirst({
-            where: eq(productSchema.category.id, product.categoryId),
+            where: eq(productSchema.category.id, entry.categoryId),
           })
         : null;
-      console.log(product, category);
+      console.log(entry, category);
 
-      if (product && category) {
+      if (entry && category) {
         console.log("=== DADOS RECUPERADOS ===");
-        console.log(JSON.stringify({ product, category }, null, 2));
+        console.log(JSON.stringify({ entry, category }, null, 2));
         console.log("=========================");
       }
     } catch (error) {
@@ -162,7 +162,11 @@ export function HomeScreen({ navigation }: any) {
                 description="Hoje, 12:30"
                 amount={12.0}
                 type="outcome"
-                categoryIcon="candycane"
+                categoryIcon={
+                  CATEGORIES.find(
+                    (cat) => String(cat.id) === String(item.categoryId),
+                  )?.icon || "dots-horizontal"
+                }
               />
             </Pressable>
           )}

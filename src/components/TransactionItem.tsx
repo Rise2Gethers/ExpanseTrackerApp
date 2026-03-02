@@ -79,7 +79,9 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
   },
   iconStyles: {
-    borderRadius: 10,
+    borderRadius: 25,
     marginRight: 10,
+    width: 40,
+    height: 40,
   },
 });

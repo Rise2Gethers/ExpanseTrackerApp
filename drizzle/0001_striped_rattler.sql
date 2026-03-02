@@ -4,4 +4,4 @@ CREATE TABLE `categories` (
 	`color` text NOT NULL
 );
 --> statement-breakpoint
-ALTER TABLE `products` ADD `category_id` integer REFERENCES categories(id);
+ALTER TABLE `entries` ADD `category_id` integer REFERENCES categories(id);

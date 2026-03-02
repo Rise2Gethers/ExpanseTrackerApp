@@ -19,19 +19,23 @@ const Stack = createNativeStackNavigator();
 // 1. Inicializar Banco
 async function initializeDatabase(db: SQLiteDatabase) {
   try {
+    // await db.execAsync("DROP TABLE IF EXISTS entries;");
+    // await db.execAsync("DROP TABLE IF EXISTS categories;");
     await db.execAsync(`
-      PRAGMA journal_mode = WAL;
-      CREATE TABLE IF NOT EXISTS categories (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        color TEXT
-      );
-      CREATE TABLE IF NOT EXISTS products (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        name TEXT NOT NULL,
-        category_id INTEGER
-      );
-    `);
+    CREATE TABLE IF NOT EXISTS categories (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      color TEXT NOT NULL
+    );
+    
+    CREATE TABLE IF NOT EXISTS entries (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      name TEXT NOT NULL,
+      category_id INTEGER,
+      date TEXT NOT NULL,
+      FOREIGN KEY (category_id) REFERENCES categories(id)
+    );
+  `);
     console.log("Banco REINICIADO com sucesso!");
   } catch (error) {
     console.log("Erro ao inicializar o banco:", error);
