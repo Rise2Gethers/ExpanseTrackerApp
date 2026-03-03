@@ -22,18 +22,19 @@ async function initializeDatabase(db: SQLiteDatabase) {
     // await db.execAsync("DROP TABLE IF EXISTS entries;");
     // await db.execAsync("DROP TABLE IF EXISTS categories;");
     await db.execAsync(`
+      CREATE TABLE IF NOT EXISTS entries (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        description TEXT NOT NULL,
+        category_id INTEGER,
+        date TEXT NOT NULL,
+        value REAL NOT NULL,
+        FOREIGN KEY (category_id) REFERENCES categories(id)
+      );
+
     CREATE TABLE IF NOT EXISTS categories (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       name TEXT NOT NULL,
       color TEXT NOT NULL
-    );
-    
-    CREATE TABLE IF NOT EXISTS entries (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      category_id INTEGER,
-      date TEXT NOT NULL,
-      FOREIGN KEY (category_id) REFERENCES categories(id)
     );
   `);
     console.log("Banco REINICIADO com sucesso!");

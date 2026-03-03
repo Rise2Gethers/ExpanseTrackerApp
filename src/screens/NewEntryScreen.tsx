@@ -12,6 +12,7 @@ import {
   Alert,
   Pressable,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
 import { green100 } from "react-native-paper/lib/typescript/styles/themes/v2/colors";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -30,7 +31,9 @@ const CATEGORIES = [
 
 type Data = {
   id: number;
-  name: string;
+  description: string;
+  date: string;
+  value: number;
 };
 
 type CategoryItem = {
@@ -51,7 +54,7 @@ interface NewEntryScreenProps {
 }
 
 export function NewEntryScreen({ navigation, route }: NewEntryScreenProps) {
-  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [categories, setCategories] = useState<CategoryItem[]>([]);
@@ -61,9 +64,8 @@ export function NewEntryScreen({ navigation, route }: NewEntryScreenProps) {
   const [categorySelected, setCategorySelected] = useState("");
   const theme = useTheme();
 
-  const [amount, setAmount] = useState<number | null>(0);
+  const [amount, setAmount] = useState<number>();
   const [selectedCategory, setSelectedCategory] = useState<string>("1");
-  const [description, setDescription] = useState("");
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
 
@@ -93,8 +95,8 @@ export function NewEntryScreen({ navigation, route }: NewEntryScreenProps) {
   async function fetchProducts() {
     try {
       const response = await db.query.entry.findMany({
-        where: like(productSchema.entry.name, `%${search}%`),
-        orderBy: [asc(productSchema.entry.name)],
+        where: like(productSchema.entry.description, `%${search}%`),
+        orderBy: [asc(productSchema.entry.description)],
       });
       setData(response);
     } catch (error) {
@@ -122,8 +124,8 @@ export function NewEntryScreen({ navigation, route }: NewEntryScreenProps) {
   }
 
   const handleSave = async () => {
-    if (!name.trim() || !category.trim() || !selectedColor.trim() || !date) {
-      Alert.alert("Preencha descrição, categoria e data!");
+    if (!amount || !category.trim() || !selectedColor.trim() || !date) {
+      Alert.alert("Preencha valor, categoria e data!");
       return;
     }
 
@@ -141,20 +143,25 @@ export function NewEntryScreen({ navigation, route }: NewEntryScreenProps) {
         console.log("Categoria nova, criando...");
         const newCategoryResponse = await db
           .insert(productSchema.category)
-          .values({ name: category, color: selectedColor });
+          .values({
+            name: category,
+            color: selectedColor,
+            id: parseInt(selectedCategory),
+          });
         finalCategoryId = newCategoryResponse.lastInsertRowId;
       }
 
       console.log(date.toISOString());
       const responseProduct = await db.insert(productSchema.entry).values({
-        name: name,
+        description: description,
         categoryId: finalCategoryId,
         date: date.toISOString(),
+        value: amount,
       });
 
       Alert.alert("Produto salvo com sucesso!");
 
-      setName("");
+      setDescription("");
       setCategory("");
       await fetchCategory();
       await fetchProducts();
@@ -177,7 +184,11 @@ export function NewEntryScreen({ navigation, route }: NewEntryScreenProps) {
   }, [search]);
 
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container}>
+      <View style={styles.amountContainer}>
+        <InputAmount value={amount} onChangeValue={setAmount} />
+      </View>
+
       <Text
         variant="titleMedium"
         style={[styles.sectionTitle, { color: theme.colors.onBackground }]}
@@ -269,10 +280,10 @@ export function NewEntryScreen({ navigation, route }: NewEntryScreenProps) {
 
         <TextInput
           mode="outlined"
-          placeholder="ex: Lanche com os amigos."
+          placeholder="ex: Lanche com os amigos (opcional)."
           placeholderTextColor={theme.colors.onSurfaceDisabled}
-          value={name}
-          onChangeText={setName}
+          value={description}
+          onChangeText={setDescription}
           style={[styles.inputField, { backgroundColor: theme.colors.surface }]}
           outlineStyle={styles.inputOutline}
         />
@@ -288,7 +299,7 @@ export function NewEntryScreen({ navigation, route }: NewEntryScreenProps) {
       >
         Salvar Despesa
       </Button>
-    </View>
+    </ScrollView>
     // <View style={styles.container}>
     //   <TextInput
     //     placeholder="nome"
@@ -413,8 +424,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "white",
-    padding: 20,
-    gap: 16,
+    marginBottom: 40,
+    paddingHorizontal: 20,
+  },
+  amountContainer: {
+    alignItems: "center",
   },
   input: {
     height: 54,
@@ -479,7 +493,7 @@ const styles = StyleSheet.create({
   },
 
   saveButton: {
-    marginTop: 20,
+    marginVertical: 20,
     borderRadius: 12,
     justifyContent: "center",
   },

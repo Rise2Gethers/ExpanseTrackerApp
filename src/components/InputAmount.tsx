@@ -5,7 +5,7 @@ import { useTheme } from "react-native-paper";
 
 interface InputAmountProps {
   value: number | null;
-  onChangeValue: (value: number | null) => void;
+  onChangeValue: (value: number) => void;
 }
 
 export const InputAmount = ({ value, onChangeValue }: InputAmountProps) => {

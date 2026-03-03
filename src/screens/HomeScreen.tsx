@@ -27,9 +27,11 @@ const CATEGORIES = [
 ];
 
 type Data = {
-  categoryId: string;
   id: number;
-  name: string;
+  description: string;
+  categoryId: number | null;
+  date: string;
+  value: number;
 };
 
 type RootStackParamList = {
@@ -37,6 +39,36 @@ type RootStackParamList = {
   NewEntryScreen: undefined;
 };
 type Props = NativeStackScreenProps<RootStackParamList, "Home">;
+
+const formatarData = (dataIso: string) => {
+  const date = new Date(dataIso);
+
+  // Opções para garantir o fuso correto (Brasília)
+  const options: Intl.DateTimeFormatOptions = {
+    timeZone: "America/Sao_Paulo",
+    hour: "2-digit",
+    minute: "2-digit",
+    day: "2-digit",
+    month: "2-digit",
+    year: "2-digit",
+    hour12: false,
+  };
+
+  const formatter = new Intl.DateTimeFormat("pt-BR", options);
+  const parts = formatter.formatToParts(date);
+
+  // Extrai os valores das partes formatadas
+  const getPart = (type: string) => parts.find((p) => p.type === type)?.value;
+
+  const hora = getPart("hour");
+  const minuto = getPart("minute");
+  const dia = getPart("day");
+  const mes = getPart("month");
+  const ano = getPart("year");
+
+  // Retorna no formato: "HH:mmh DD/MM"
+  return `${hora}:${minuto}h - ${dia}/${mes}/${ano}`;
+};
 
 export function HomeScreen({ navigation }: any) {
   const theme = useTheme();
@@ -52,8 +84,8 @@ export function HomeScreen({ navigation }: any) {
   async function fetchProducts() {
     try {
       const response = await db.query.entry.findMany({
-        where: like(productSchema.entry.name, `%${search}%`),
-        orderBy: [asc(productSchema.entry.name)],
+        where: like(productSchema.entry.description, `%${search}%`),
+        orderBy: [asc(productSchema.entry.description)],
       });
       setData(response);
     } catch (error) {
@@ -158,9 +190,9 @@ export function HomeScreen({ navigation }: any) {
               onPress={() => show(item.id)}
             >
               <TransactionItem
-                title={item.name}
-                description="Hoje, 12:30"
-                amount={12.0}
+                title={item.description}
+                date={formatarData(item.date)}
+                amount={item.value}
                 type="outcome"
                 categoryIcon={
                   CATEGORIES.find(

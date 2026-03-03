@@ -1,10 +1,10 @@
 import React from "react";
 import { StyleSheet } from "react-native";
-import { List, Text, MD3Colors, useTheme } from "react-native-paper"; // <--- 1. Import useTheme
+import { List, Text, useTheme } from "react-native-paper"; // <--- 1. Import useTheme
 
 interface TransactionItemProps {
   title: string;
-  description?: string;
+  date?: string;
   amount: number;
   type: "income" | "outcome";
   categoryIcon?: string;
@@ -13,13 +13,13 @@ interface TransactionItemProps {
 
 export const TransactionItem = ({
   title,
-  description,
+  date,
   amount,
   type,
   categoryIcon = "cash",
   onPress,
 }: TransactionItemProps) => {
-  const theme = useTheme(); // <--- 2. Acessamos as cores atuais
+  const theme = useTheme();
 
   // Usamos cores do tema para ficar harmônico (Vermelho do tema ou Verde)
   const amountColor = type === "outcome" ? theme.colors.error : "#4CAF50";
@@ -32,7 +32,7 @@ export const TransactionItem = ({
       title={title}
       // 3. Cor do Título: Preto no claro, Branco no escuro
       titleStyle={{ fontWeight: "bold", color: theme.colors.onSurface }}
-      description={description}
+      description={date}
       // 4. Cor da Descrição: Cinza escuro no claro, Cinza claro no escuro
       descriptionStyle={{ color: theme.colors.onSurfaceVariant }}
       onPress={onPress}
@@ -69,7 +69,6 @@ export const TransactionItem = ({
 
 const styles = StyleSheet.create({
   container: {
-    // backgroundColor: '#fff', <--- REMOVIDO! Isso matava o dark mode
     borderRadius: 12,
     marginBottom: 10,
     paddingHorizontal: 10,
