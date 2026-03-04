@@ -1,14 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {
-  Text,
-  ActivityIndicator,
-  Pressable,
-  Button,
-  TextInput,
-  Alert,
-  View,
-} from "react-native";
-import { asc, eq, like } from "drizzle-orm";
+import { Text, Pressable, Button, TextInput, View } from "react-native";
+import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/expo-sqlite";
 import * as productSchema from "../database/schemas/productSchema";
 import { useSQLiteContext } from "expo-sqlite";
@@ -16,13 +8,11 @@ import { useSQLiteContext } from "expo-sqlite";
 export function CategoryLabel() {
   const database = useSQLiteContext();
   const db = drizzle(database, { schema: productSchema });
-  // 1. ESTADO: Começamos sem nada (null) e com carregamento (true)
   const [categoryName, setCategoryName] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [category, setCategory] = useState("");
   const [showCategory, setShowCategory] = useState(false);
 
-  // 2. EFEITO: Roda assim que o componente aparece na tela
   useEffect(() => {
     async function fetchCategory() {
       try {
@@ -60,11 +50,11 @@ export function CategoryLabel() {
   }
 
   if (isLoading) {
-    return <Text>Carregando...</Text>; // ou <ActivityIndicator />
+    return <Text>Carregando...</Text>;
   }
 
   return (
-    <Pressable style={{gap: 16}}>
+    <Pressable style={{ gap: 16 }}>
       <Text>
         {categoryName ? (
           categoryName
@@ -73,7 +63,7 @@ export function CategoryLabel() {
         )}
       </Text>
 
-      <View  style={{display: showCategory? "flex" : "none", gap: 16}}>
+      <View style={{ display: showCategory ? "flex" : "none", gap: 16 }}>
         <TextInput
           placeholder="categoria"
           style={{

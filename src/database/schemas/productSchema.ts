@@ -13,3 +13,8 @@ export const category = sqliteTable("categories", {
   name: text("name").notNull(),
   color: text("color").notNull(),
 });
+
+export const wallet = sqliteTable("wallets", {
+  id: integer("id").primaryKey(),
+  value: real("value").notNull(),
+});

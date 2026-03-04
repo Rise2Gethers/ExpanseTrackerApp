@@ -1,6 +1,6 @@
 import React from "react";
 import { StyleSheet } from "react-native";
-import { List, Text, useTheme } from "react-native-paper"; // <--- 1. Import useTheme
+import { List, Text, useTheme } from "react-native-paper";
 
 interface TransactionItemProps {
   title: string;
@@ -21,19 +21,15 @@ export const TransactionItem = ({
 }: TransactionItemProps) => {
   const theme = useTheme();
 
-  // Usamos cores do tema para ficar harmônico (Vermelho do tema ou Verde)
   const amountColor = type === "outcome" ? theme.colors.error : "#4CAF50";
 
-  // Formatação segura
   const formattedAmount = `R$ ${amount.toFixed(2).replace(".", ",")}`;
 
   return (
     <List.Item
       title={title}
-      // 3. Cor do Título: Preto no claro, Branco no escuro
       titleStyle={{ fontWeight: "bold", color: theme.colors.onSurface }}
       description={date}
-      // 4. Cor da Descrição: Cinza escuro no claro, Cinza claro no escuro
       descriptionStyle={{ color: theme.colors.onSurfaceVariant }}
       onPress={onPress}
       left={(props) => (
@@ -41,7 +37,6 @@ export const TransactionItem = ({
           {...props}
           icon={categoryIcon}
           color={theme.colors.primary}
-          // 5. Fundo do ícone também se adapta (fica um cinza leve no dark)
           style={[
             styles.iconStyles,
             { backgroundColor: theme.colors.elevation.level3 },
@@ -61,7 +56,6 @@ export const TransactionItem = ({
           {formattedAmount}
         </Text>
       )}
-      // 6. O PULO DO GATO: O Fundo do cartão agora muda de cor!
       style={[styles.container, { backgroundColor: theme.colors.surface }]}
     />
   );

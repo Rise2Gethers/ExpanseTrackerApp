@@ -1,16 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
-import {
-  View,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  FlatList,
-  Pressable,
-  Alert,
-} from "react-native";
-import { Text, Button, TextInput, Icon, useTheme } from "react-native-paper";
+import { View, StyleSheet, FlatList, Pressable, Alert } from "react-native";
+import { Text, useTheme } from "react-native-paper";
 import { InputAmount, TransactionItem, Header } from "../components/index";
-import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useSQLiteContext } from "expo-sqlite";
 import { drizzle } from "drizzle-orm/expo-sqlite";
 import * as productSchema from "../database/schemas/productSchema";
@@ -34,16 +25,9 @@ type Data = {
   value: number;
 };
 
-type RootStackParamList = {
-  Home: undefined;
-  NewEntryScreen: undefined;
-};
-type Props = NativeStackScreenProps<RootStackParamList, "Home">;
-
 const formatarData = (dataIso: string) => {
   const date = new Date(dataIso);
 
-  // Opções para garantir o fuso correto (Brasília)
   const options: Intl.DateTimeFormatOptions = {
     timeZone: "America/Sao_Paulo",
     hour: "2-digit",
@@ -57,7 +41,6 @@ const formatarData = (dataIso: string) => {
   const formatter = new Intl.DateTimeFormat("pt-BR", options);
   const parts = formatter.formatToParts(date);
 
-  // Extrai os valores das partes formatadas
   const getPart = (type: string) => parts.find((p) => p.type === type)?.value;
 
   const hora = getPart("hour");
@@ -66,7 +49,6 @@ const formatarData = (dataIso: string) => {
   const mes = getPart("month");
   const ano = getPart("year");
 
-  // Retorna no formato: "HH:mmh DD/MM"
   return `${hora}:${minuto}h - ${dia}/${mes}/${ano}`;
 };
 
@@ -79,14 +61,18 @@ export function HomeScreen({ navigation }: any) {
   const [search, setSearch] = useState("");
   const [data, setData] = useState<Data[]>([]);
 
-  const [amount, setAmount] = useState<number | null>(100);
+  const [wallet, setWallet] = useState<number | 0>(0);
 
   async function fetchProducts() {
     try {
+      const responseWallet = await db.query.wallet.findMany({
+        where: like(productSchema.wallet.value, `%${search}%`),
+      });
       const response = await db.query.entry.findMany({
         where: like(productSchema.entry.description, `%${search}%`),
         orderBy: [asc(productSchema.entry.description)],
       });
+      setWallet(responseWallet[0].value);
       setData(response);
     } catch (error) {
       console.log(error);
@@ -113,6 +99,12 @@ export function HomeScreen({ navigation }: any) {
             await db
               .delete(productSchema.category)
               .where(eq(productSchema.category.id, entry.categoryId));
+            await db
+              .update(productSchema.wallet)
+              .set({
+                value: wallet + (entry?.value || 0),
+              })
+              .where(eq(productSchema.wallet.id, 1));
 
             await fetchProducts();
           },
@@ -167,7 +159,7 @@ export function HomeScreen({ navigation }: any) {
 
       <View style={{ flex: 1, paddingHorizontal: 24, paddingBottom: 50 }}>
         <View style={styles.amountContainer}>
-          <InputAmount value={amount} onChangeValue={setAmount} />
+          <InputAmount value={wallet} onChangeValue={setWallet} />
         </View>
 
         <Text

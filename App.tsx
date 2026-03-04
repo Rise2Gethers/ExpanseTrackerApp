@@ -19,8 +19,6 @@ const Stack = createNativeStackNavigator();
 // 1. Inicializar Banco
 async function initializeDatabase(db: SQLiteDatabase) {
   try {
-    // await db.execAsync("DROP TABLE IF EXISTS entries;");
-    // await db.execAsync("DROP TABLE IF EXISTS categories;");
     await db.execAsync(`
       CREATE TABLE IF NOT EXISTS entries (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -36,6 +34,11 @@ async function initializeDatabase(db: SQLiteDatabase) {
       name TEXT NOT NULL,
       color TEXT NOT NULL
     );
+    
+    CREATE TABLE IF NOT EXISTS wallets (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      value REAL NOT NULL
+    )
   `);
     console.log("Banco REINICIADO com sucesso!");
   } catch (error) {

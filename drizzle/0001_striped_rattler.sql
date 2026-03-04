@@ -3,5 +3,5 @@ CREATE TABLE `categories` (
 	`name` text NOT NULL,
 	`color` text NOT NULL
 );
---> statement-breakpoint
+
 ALTER TABLE `entries` ADD `category_id` integer REFERENCES categories(id);

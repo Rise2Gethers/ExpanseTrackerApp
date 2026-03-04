@@ -1,4 +1,4 @@
-import React from "react"; // Removi o useState, pois não vamos usar localmente
+import React from "react";
 import { View, StyleSheet, ScrollView, Alert } from "react-native";
 import {
   Text,
@@ -10,7 +10,7 @@ import {
   useTheme,
 } from "react-native-paper";
 import { Header } from "../components";
-import { usePreferences } from "../contexts/PreferencesContext"; // <--- 1. IMPORT NOVO
+import { usePreferences } from "../contexts/PreferencesContext";
 
 interface SettingsScreenProps {
   navigation: any;
@@ -19,8 +19,6 @@ interface SettingsScreenProps {
 export function SettingsScreen({ navigation }: SettingsScreenProps) {
   const theme = useTheme();
 
-  // 2. SUBSTITUIÇÃO: Trocamos o useState local pelo Hook Global
-  // Agora estamos lendo e escrevendo direto no "cérebro" do App
   const { isThemeDark, toggleTheme } = usePreferences();
 
   const handleWipeData = () => {
@@ -74,10 +72,7 @@ export function SettingsScreen({ navigation }: SettingsScreenProps) {
             description="Alternar entre Light e Dark mode"
             left={(props) => <List.Icon {...props} icon="theme-light-dark" />}
             right={() => (
-              <Switch
-                value={isThemeDark} // <--- 3. Valor vem do Global
-                onValueChange={toggleTheme} // <--- Ação vai pro Global
-              />
+              <Switch value={isThemeDark} onValueChange={toggleTheme} />
             )}
           />
 
