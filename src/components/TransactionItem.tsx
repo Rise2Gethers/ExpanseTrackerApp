@@ -8,6 +8,7 @@ interface TransactionItemProps {
   amount: number;
   type: "income" | "outcome";
   categoryIcon?: string;
+  description?: string;
   onPress?: () => void;
 }
 

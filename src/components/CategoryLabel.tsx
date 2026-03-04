@@ -1,24 +1,25 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Text, Pressable, Button, TextInput, View } from "react-native";
-import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/expo-sqlite";
-import * as productSchema from "../database/schemas/productSchema";
 import { useSQLiteContext } from "expo-sqlite";
+
+import * as schema from "../database/schemas/productSchema";
 
 export function CategoryLabel() {
   const database = useSQLiteContext();
-  const db = drizzle(database, { schema: productSchema });
-  const [categoryName, setCategoryName] = useState(null);
+
+  const db = useMemo(() => drizzle(database, { schema }), [database]);
+
+  const [categoryName, setCategoryName] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [category, setCategory] = useState("");
+
+  const [categoryInput, setCategoryInput] = useState("");
   const [showCategory, setShowCategory] = useState(false);
 
   useEffect(() => {
     async function fetchCategory() {
       try {
-        const result = await db.query.category.findFirst({
-          where: eq(productSchema.category.id, 1),
-        });
+        const result = await db.query.category.findFirst();
 
         if (result) {
           setCategoryName(result.name);
@@ -31,22 +32,20 @@ export function CategoryLabel() {
     }
 
     fetchCategory();
-  });
+  }, [db]);
 
   async function add() {
     try {
       await db
-        .insert(productSchema.category)
-        .values({ name: category, color: "#0b92e0ff" });
+        .insert(schema.category)
+        .values({ name: categoryInput, color: "#0b92e0ff" });
 
-      setCategory("");
+      setCategoryName(categoryInput);
+      setCategoryInput("");
+      setShowCategory(false);
     } catch (error) {
-      console.log(error);
+      console.log("Erro ao salvar:", error);
     }
-  }
-
-  async function showCreateCategory() {
-    setShowCategory(true);
   }
 
   if (isLoading) {
@@ -59,13 +58,16 @@ export function CategoryLabel() {
         {categoryName ? (
           categoryName
         ) : (
-          <Button title="Cadastrar categoria" onPress={showCreateCategory} />
+          <Button
+            title="Cadastrar categoria"
+            onPress={() => setShowCategory(true)}
+          />
         )}
       </Text>
 
       <View style={{ display: showCategory ? "flex" : "none", gap: 16 }}>
         <TextInput
-          placeholder="categoria"
+          placeholder="Nome da categoria"
           style={{
             height: 54,
             borderWidth: 1,
@@ -73,11 +75,11 @@ export function CategoryLabel() {
             borderColor: "#999",
             paddingHorizontal: 16,
           }}
-          onChangeText={setCategory}
-          value={category}
+          onChangeText={setCategoryInput}
+          value={categoryInput}
         />
 
-        <Button title="salvar" onPress={add} />
+        <Button title="Salvar" onPress={add} />
       </View>
     </Pressable>
   );

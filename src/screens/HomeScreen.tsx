@@ -98,7 +98,7 @@ export function HomeScreen({ navigation }: any) {
 
             await db
               .delete(productSchema.category)
-              .where(eq(productSchema.category.id, entry.categoryId));
+              .where(eq(productSchema.category.id, entry?.categoryId ?? 0));
             await db
               .update(productSchema.wallet)
               .set({
@@ -199,7 +199,7 @@ export function HomeScreen({ navigation }: any) {
               title="Lista vazia"
               description=""
               amount={0}
-              type="empty"
+              type="income"
               categoryIcon=""
             />
           )}

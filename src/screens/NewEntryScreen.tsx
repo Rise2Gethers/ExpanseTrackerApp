@@ -1,8 +1,4 @@
-import { useSQLiteContext } from "expo-sqlite";
-import { drizzle } from "drizzle-orm/expo-sqlite";
-import * as productSchema from "../database/schemas/productSchema";
-import { asc, eq, like } from "drizzle-orm";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   View,
   StyleSheet,
@@ -11,8 +7,13 @@ import {
   ScrollView,
 } from "react-native";
 import { Text, Button, TextInput, Icon, useTheme } from "react-native-paper";
-import { InputAmount } from "../components/index";
 import DateTimePicker from "@react-native-community/datetimepicker";
+import { useSQLiteContext } from "expo-sqlite";
+import { drizzle } from "drizzle-orm/expo-sqlite";
+import { asc, eq, like } from "drizzle-orm";
+
+import * as schema from "../database/schemas/productSchema";
+import { InputAmount } from "../components/index";
 
 const CATEGORIES = [
   { id: "1", name: "Alimentação", icon: "silverware-fork-knife" },
@@ -23,93 +24,53 @@ const CATEGORIES = [
   { id: "6", name: "Outro", icon: "dots-horizontal" },
 ];
 
-type Data = {
-  id: number;
-  description: string;
-  date: string;
-  value: number;
-};
-
-type CategoryItem = {
-  id: number;
-  name: string;
-  color: string;
-};
-
 interface NewEntryScreenProps {
   navigation: any;
   route?: any;
 }
 
-export function NewEntryScreen({ navigation, route }: NewEntryScreenProps) {
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("");
-  const [selectedColor, setSelectedColor] = useState("");
-  const [categories, setCategories] = useState<CategoryItem[]>([]);
-  const [search, setSearch] = useState("");
-  const [data, setData] = useState<Data[]>([]);
-  const [categorySelected, setCategorySelected] = useState("");
+export function NewEntryScreen({ navigation }: NewEntryScreenProps) {
   const theme = useTheme();
+  const database = useSQLiteContext();
 
-  const [wallet, setWallet] = useState<number | 0>(0);
+  const db = useMemo(() => drizzle(database, { schema }), [database]);
 
   const [amount, setAmount] = useState<number>(0);
+  const [description, setDescription] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("1");
+  const [categoryName, setCategoryName] = useState("Alimentação");
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
 
+  const [wallet, setWallet] = useState<number>(0);
+  const [walletExists, setWalletExists] = useState(false);
+
   const onChangeDate = (event: any, selectedDate?: Date) => {
     setShowDatePicker(false);
-    if (selectedDate) {
-      setDate(selectedDate);
-    }
+    if (selectedDate) setDate(selectedDate);
   };
 
-  const database = useSQLiteContext();
-  const db = drizzle(database, { schema: productSchema });
-
-  async function fetchProducts() {
+  async function fetchInitialData() {
     try {
-      const response = await db.query.entry.findMany({
-        where: like(productSchema.entry.description, `%${search}%`),
-        orderBy: [asc(productSchema.entry.description)],
-      });
-      setData(response);
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  async function fetchCategory() {
-    try {
-      const responseWallet = await db.query.wallet.findMany({
-        orderBy: [asc(productSchema.wallet)],
-      });
-
-      const result = await db.query.category.findMany({
-        orderBy: [asc(productSchema.category.name)],
-      });
-
-      if (result) {
-        const formattedList = result.map((cat) => ({
-          id: cat.id,
-          name: cat.name,
-          color: cat.color,
-        }));
-        setCategories(formattedList);
+      const responseWallet = await db.query.wallet.findFirst();
+      if (responseWallet) {
+        setWallet(responseWallet.value);
+        setWalletExists(true);
+      } else {
+        setWallet(0);
+        setWalletExists(false);
       }
-      // eslint-disable-next-line no-unused-expressions
-      responseWallet[0].value
-        ? setWallet(responseWallet[0].value)
-        : setWallet(0);
     } catch (error) {
-      console.error("Erro ao buscar categoria:", error);
+      console.error("Erro ao buscar dados iniciais:", error);
     }
   }
 
   const handleSave = async () => {
-    if (!amount || !category.trim() || !selectedColor.trim() || !date) {
-      Alert.alert("Preencha valor, categoria e data!");
+    if (!amount || amount <= 0 || !categoryName.trim()) {
+      Alert.alert(
+        "Atenção",
+        "Preencha um valor válido e selecione uma categoria!",
+      );
       return;
     }
 
@@ -117,69 +78,59 @@ export function NewEntryScreen({ navigation, route }: NewEntryScreenProps) {
       let finalCategoryId: number;
 
       const existingCategory = await db.query.category.findFirst({
-        where: eq(productSchema.category.name, category),
+        where: eq(schema.category.name, categoryName),
       });
 
       if (existingCategory) {
-        console.log("Categoria já existe, usando ID:", existingCategory.id);
         finalCategoryId = existingCategory.id;
       } else {
-        console.log("Categoria nova, criando...");
-        const newCategoryResponse = await db
-          .insert(productSchema.category)
-          .values({
-            name: category,
-            color: selectedColor,
-            id: parseInt(selectedCategory),
-          });
+        const newCategoryResponse = await db.insert(schema.category).values({
+          name: categoryName,
+          color: theme.colors.primary,
+        });
         finalCategoryId = newCategoryResponse.lastInsertRowId;
       }
 
-      await db.insert(productSchema.entry).values({
-        description: description,
+      await db.insert(schema.entry).values({
+        description: description || categoryName,
         categoryId: finalCategoryId,
         date: date.toISOString(),
         value: amount,
       });
 
-      // eslint-disable-next-line no-unused-expressions
-      wallet || 0
-        ? await db
-            .update(productSchema.wallet)
-            .set({
-              value: wallet - amount,
-            })
-            .where(eq(productSchema.wallet.id, 1))
-        : await db.insert(productSchema.wallet).values({
-            value: wallet - amount,
-          });
+      if (walletExists) {
+        await db
+          .update(schema.wallet)
+          .set({ value: wallet - amount })
+          .where(eq(schema.wallet.id, 1));
+      } else {
+        await db.insert(schema.wallet).values({
+          id: 1,
+          value: -amount,
+        });
+      }
 
-      Alert.alert("Produto salvo com sucesso!");
-
-      setDescription("");
-      setCategory("");
-      await fetchCategory();
-      await fetchProducts();
+      Alert.alert("Sucesso", "Despesa salva com sucesso!");
       navigation.goBack();
     } catch (error) {
-      console.log("Erro ao salvar:", error);
-      Alert.alert("Erro ao salvar dados");
+      console.error("Erro ao salvar:", error);
+      Alert.alert("Erro", "Não foi possível salvar a despesa.");
     }
   };
 
-  const selected = (name: string, color: string) => {
-    setCategorySelected(name);
-    setCategory(name);
-    setSelectedColor(color);
+  const handleSelectCategory = (id: string, name: string) => {
+    setSelectedCategory(id);
+    setCategoryName(name);
   };
 
   useEffect(() => {
-    fetchCategory();
-    fetchProducts();
-  }, [search]);
+    fetchInitialData();
+  }, []);
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
+    >
       <View style={styles.amountContainer}>
         <InputAmount value={amount} onChangeValue={setAmount} />
       </View>
@@ -208,10 +159,7 @@ export function NewEntryScreen({ navigation, route }: NewEntryScreenProps) {
                   backgroundColor: theme.colors.elevation.level2,
                 },
               ]}
-              onPress={() => (
-                setSelectedCategory(cat.id),
-                selected(cat.name, theme.colors.surface)
-              )}
+              onPress={() => handleSelectCategory(cat.id, cat.name)}
             >
               <Icon
                 source={cat.icon}
@@ -242,7 +190,6 @@ export function NewEntryScreen({ navigation, route }: NewEntryScreenProps) {
         <Text style={[styles.label, { color: theme.colors.onBackground }]}>
           Data
         </Text>
-
         <TextInput
           mode="outlined"
           value={date.toLocaleDateString("pt-BR")}
@@ -272,7 +219,6 @@ export function NewEntryScreen({ navigation, route }: NewEntryScreenProps) {
         <Text style={[styles.label, { color: theme.colors.onBackground }]}>
           Descrição
         </Text>
-
         <TextInput
           mode="outlined"
           placeholder="ex: Lanche com os amigos (opcional)."
@@ -299,34 +245,9 @@ export function NewEntryScreen({ navigation, route }: NewEntryScreenProps) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "white",
-    marginBottom: 40,
-    paddingHorizontal: 20,
-  },
-  amountContainer: {
-    alignItems: "center",
-  },
-  input: {
-    height: 54,
-    borderWidth: 1,
-    borderRadius: 10,
-    borderColor: "#999",
-    paddingHorizontal: 16,
-  },
-  categoryRow: {
-    minHeight: 30,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    flexWrap: "wrap",
-  },
-  sectionTitle: {
-    fontWeight: "bold",
-    marginBottom: 5,
-    marginTop: 10,
-  },
+  container: { flex: 1, paddingHorizontal: 20 },
+  amountContainer: { alignItems: "center", marginTop: 20 },
+  sectionTitle: { fontWeight: "bold", marginBottom: 10, marginTop: 20 },
   gridContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -344,35 +265,15 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 8,
   },
-
-  cardText: {
-    fontSize: 13,
-    fontWeight: "500",
-  },
-
-  inputsSection: {
-    gap: 15,
-    marginTop: 10,
-  },
-
-  label: {
-    fontSize: 14,
-    marginBottom: 5,
-    fontWeight: "600",
-  },
-
-  inputField: {
-    fontSize: 16,
-  },
-
-  inputOutline: {
-    borderRadius: 12,
-    borderColor: "#E0E0E0",
-  },
-
+  cardText: { fontSize: 13, fontWeight: "500" },
+  inputsSection: { gap: 15, marginTop: 10 },
+  label: { fontSize: 14, marginBottom: 5, fontWeight: "600" },
+  inputField: { fontSize: 16 },
+  inputOutline: { borderRadius: 12, borderColor: "#E0E0E0" },
   saveButton: {
-    marginVertical: 20,
+    marginVertical: 30,
     borderRadius: 12,
     justifyContent: "center",
+    marginBottom: 60,
   },
 });
