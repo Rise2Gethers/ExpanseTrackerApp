@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apresentação Expanse Tracker</title>
+    <style>
+        :root {
+            --bg-color: #0d1117; /* GitHub Dark Dimmed */
+            --text-color: #c9d1d9;
+            --accent-color: #58a6ff; /* GitHub Blue */
+            --highlight-color: #bc8cff; /* GitHub Purple */
+            --card-bg: #161b22;
+            --border-color: #30363d;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+            scroll-snap-type: y mandatory;
+            height: 100vh;
+        }
+
+        .slide {
+            height: 100vh;
+            width: 100vw;
+            scroll-snap-align: start;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            position: relative;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        h1 {
+            font-size: 4rem;
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            color: var(--highlight-color);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+        }
+
+        p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+            text-align: center;
+            max-width: 800px;
+        }
+
+        ul {
+            list-style: none;
+            width: 100%;
+        }
+
+        li {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        li::before {
+            content: "➜";
+            color: var(--highlight-color);
+            font-weight: bold;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            width: 100%;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-color);
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 2rem;
+            font-size: 0.9rem;
+            color: #8b949e;
+            text-align: center;
+            width: 100%;
+        }
+
+        /* Slide Specific Styles */
+        .slide-cover h1 {
+            background: -webkit-linear-gradient(45deg, var(--accent-color), var(--highlight-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            background-color: rgba(56, 139, 253, 0.15);
+            color: var(--accent-color);
+            font-size: 0.8rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Navigation Hint */
+        .scroll-hint {
+            position: fixed;
+            bottom: 10px;
+            right: 20px;
+            background: rgba(0,0,0,0.5);
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            h2 { font-size: 1.8rem; }
+            .slide { padding: 1rem; justify-content: flex-start; padding-top: 4rem;}
+        }
+    </style>
+</head>
+<body>
+
+    <div class="scroll-hint">Role para baixo ▼</div>
+
+    <!-- Slide 1: Capa -->
+    <div class="slide slide-cover" id="slide1">
+        <div class="container">
+            <div style="font-size: 5rem; margin-bottom: 1rem;">🚀</div>
+            <h1>Expanse Tracker</h1>
+            <p style="font-size: 1.5rem; color: #fff;">Um projeto de gestão financeira e colaboração técnica.</p>
+            <div style="margin-top: 2rem; padding: 1rem; border-top: 1px solid var(--border-color);">
+                <p style="font-size: 1rem; color: #8b949e;">Desenvolvido por</p>
+                <h3 style="color: #fff;">Kenji & João Gabriel</h3>
+            </div>
+        </div>
+        <div class="footer"></div>
+    </div>
+
+    <!-- Slide 2: O Objetivo -->
+    <div class="slide" id="slide2">
+        <div class="container">
+            <h2>🎯 O Objetivo (The Why)</h2>
+            <p style="font-style: italic; color: #8b949e; margin-bottom: 2rem;">"Mais do que Código: A Vivência Real"</p>
+            <ul>
+                <li>
+                    <div>
+                        <strong>Simulação de Mercado</strong><br>
+                        <span style="font-size: 0.9rem; color: #8b949e;">Foco na rotina de grandes empresas (Code Review, Pull Requests e CI/CD).</span>
+                    </div>
+                </li>
+                <li>
+                    <div>
+                        <strong>Resolução de Dor Real</strong><br>
+                        <span style="font-size: 0.9rem; color: #8b949e;">Um aplicativo funcional para controle de gastos diários e visualização de saldo.</span>
+                    </div>
+                </li>
+                <li>
+                    <div>
+                        <strong>Aprendizado Colaborativo</strong><br>
+                        <span style="font-size: 0.9rem; color: #8b949e;">Desenvolvimento em par focado em metodologia ágil, não apenas em escrever linhas de código.</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="footer"></div>
+    </div>
+
+    <!-- Slide 3: Metodologia -->
+    <div class="slide" id="slide3">
+        <div class="container">
+            <h2>⚙️ Metodologia de Trabalho</h2>
+            <div class="grid">
+                <div class="card">
+                    <span class="card-icon">🔄</span>
+                    <div class="card-title">Gestão Ágil</div>
+                    <p style="font-size: 0.9rem;">Utilização do SCRUM adaptado e Kanban via GitHub Projects.</p>
+                </div>
+                <div class="card">
+                    <span class="card-icon">🌿</span>
+                    <div class="card-title">Controle de Versão</div>
+                    <p style="font-size: 0.9rem;">Fluxo de <strong>Feature Branch Workflow</strong>. Ninguém commita na main!</p>
+                </div>
+                <div class="card">
+                    <span class="card-icon">✅</span>
+                    <div class="card-title">Qualidade</div>
+                    <p style="font-size: 0.9rem;">Revisão obrigatória de código (Code Review) via Pull Requests antes do merge.</p>
+                </div>
+            </div>
+        </div>
+        <div class="footer"></div>
+    </div>
+
+    <!-- Slide 4: Tech Stack -->
+    <div class="slide" id="slide4">
+        <div class="container">
+            <h2>🛠️ Tech Stack</h2>
+            <p>Arquitetura "Local-First" & Ferramentas Modernas</p>
+            <div class="grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="card" style="text-align: left;">
+                    <span class="card-icon">📱</span>
+                    <div class="card-title">Mobile Core</div>
+                    <div>
+                        <span class="tag">React Native</span>
+                        <span class="tag">Expo</span>
+                        <span class="tag">TypeScript</span>
+                    </div>
+                </div>
+                <div class="card" style="text-align: left;">
+                    <span class="card-icon">💾</span>
+                    <div class="card-title">Database</div>
+                    <div>
+                        <span class="tag">SQLite (Local)</span>
+                        <span class="tag">Drizzle ORM</span>
+                    </div>
+                </div>
+                <div class="card" style="text-align: left;">
+                    <span class="card-icon">🎨</span>
+                    <div class="card-title">UI/UX</div>
+                    <div>
+                        <span class="tag">React Native Paper</span>
+                        <span class="tag">Victory Native</span>
+                    </div>
+                </div>
+                <div class="card" style="text-align: left;">
+                    <span class="card-icon">⚡</span>
+                    <div class="card-title">State Management</div>
+                    <div>
+                        <span class="tag">Zustand</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer"></div>
+    </div>
+
+    <!-- Slide 5: MVP -->
+    <div class="slide" id="slide5">
+        <div class="container">
+            <h2>📱 Funcionalidades do MVP</h2>
+            <p>Sprint 1: O Essencial para Funcionar</p>
+            <div class="grid">
+                <div class="card">
+                    <span class="card-icon">💰</span>
+                    <p>Registro rápido de Gastos e Receitas</p>
+                </div>
+                <div class="card">
+                    <span class="card-icon">📊</span>
+                    <p>Dashboard com visualização de saldo em tempo real</p>
+                </div>
+                <div class="card">
+                    <span class="card-icon">📂</span>
+                    <p>Gestão inteligente de Categorias</p>
+                </div>
+                <div class="card">
+                    <span class="card-icon">📡</span>
+                    <p>Persistência de dados offline (Local-First)</p>
+                </div>
+            </div>
+        </div>
+        <div class="footer"></div>
+    </div>
+
+    <!-- Slide 6: Roadmap -->
+    <div class="slide" id="slide6">
+        <div class="container">
+            <h2>🚀 Próximos Passos</h2>
+            <div style="background: var(--card-bg); padding: 2rem; border-radius: 12px; border: 1px solid var(--accent-color); width: 100%; max-width: 600px;">
+                <ul style="border: none;">
+                    <li style="border: none; background: transparent;">Implementação de Gráficos avançados por período</li>
+                    <li style="border: none; background: transparent;">Sistema de Backup em Nuvem</li>
+                    <li style="border: none; background: transparent;">Polimento de UI e Publicação (Deploy)</li>
+                </ul>
+            </div>
+            <h3 style="margin-top: 3rem; font-size: 2rem; background: -webkit-linear-gradient(45deg, #fff, var(--highlight-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                "Transformando estudo em software profissional."
+            </h3>
+        </div>
+        <div class="footer"></div>
+    </div>
+
+    <script>
+        // Script simples para permitir navegação com setas do teclado
+        document.addEventListener('keydown', (e) => {
+            const height = window.innerHeight;
+            if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+                window.scrollBy({ top: height, behavior: 'smooth' });
+            } else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+                window.scrollBy({ top: -height, behavior: 'smooth' });
+            }
+        });
+    </script>
+</body>
+</html>
