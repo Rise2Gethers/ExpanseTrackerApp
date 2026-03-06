@@ -109,7 +109,7 @@ Prerequisites: **Node.js (LTS)**, **Git**, and the **Expo Go** app on your phone
           <b>Kenji Shimizu</b>
         </sub>
       </a><br>
-      Backend & Data Specialist
+      Backend & Data Specialist | AI Implementor Specialist
     </td>
     <td align="center">
       <a href="https://github.com/Jggranito">
@@ -119,6 +119,15 @@ Prerequisites: **Node.js (LTS)**, **Git**, and the **Expo Go** app on your phone
         </sub>
       </a><br>
       Frontend & Mobile Specialist
+    </td>
+      <td align="center">
+      <a href="https://github.com/Guylherme97">
+        <img src="https://github.com/Guylherme97.png" width="100px;" alt="Guy Profile"/><br>
+        <sub>
+          <b>Guylherme Lopes</b>
+        </sub>
+      </a><br>
+      Data Science Specialist & Software Engineer 
     </td>
   </tr>
 </table>
