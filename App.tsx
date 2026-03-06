@@ -69,7 +69,7 @@ function AppContent() {
             name="NewEntryScreen"
             component={NewEntryScreen}
             options={{
-              title: "Nova Entrada",
+              title: "Novo Lançamento",
               presentation: "modal",
             }}
           />
